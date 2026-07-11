@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+qiskit>=1.0
+qiskit-aer
+pydantic>=2
+pytest
+httpx
