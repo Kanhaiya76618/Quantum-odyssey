@@ -36,3 +36,38 @@ class SimulateResponse(BaseModel):
     qasm: str
     diagram: str
     bit_order: str
+
+
+class ArbitrageRequest(BaseModel):
+    capital: float = 10000.0
+    steps: int = 3
+    rates: dict[str, float] | None = None
+    ibm_token: str | None = None
+
+
+class ArbitragePathResult(BaseModel):
+    binary: str
+    path: list[str]
+    final_capital: float
+    profit: float
+    prob: float
+
+
+class ArbitrageResponse(BaseModel):
+    initial_capital: float
+    final_capital: float
+    projected_profit: float
+    roi_percent: float
+    optimal_path_binary: str
+    optimal_path_names: list[str]
+    all_paths: list[ArbitragePathResult]
+    num_qubits: int
+    qaoa_circuit_gates: list[GateOp]
+    probabilities: dict[str, float]
+    cost_history: list[float]
+    error_mitigation: str
+    backend_used: str
+    is_real_hardware: bool
+    execution_time_ms: float
+
+

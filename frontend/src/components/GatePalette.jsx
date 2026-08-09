@@ -12,21 +12,32 @@ export default function GatePalette() {
   const clearAll = useCircuitStore((s) => s.clearAll);
 
   return (
-    <div className="palette">
+    <div className="palette" role="toolbar" aria-label="Gate palette">
       {GROUPS.map((group, i) => (
         <div className="group" key={i}>
           {group.map(([name, label]) => (
-            <button key={name} className={selected === name ? "sel" : ""} onClick={() => select(name)}>
+            <button
+              key={name}
+              className={selected === name ? "sel" : ""}
+              onClick={() => select(name)}
+              aria-label={`${label} gate`}
+              aria-pressed={selected === name}
+            >
               {label}
             </button>
           ))}
         </div>
       ))}
       <div className="group">
-        <button className={"erase" + (selected === "erase" ? " sel" : "")} onClick={() => select("erase")}>
+        <button
+          className={"erase" + (selected === "erase" ? " sel" : "")}
+          onClick={() => select("erase")}
+          aria-label="Erase tool"
+          aria-pressed={selected === "erase"}
+        >
           ERASE
         </button>
-        <button className="clear" onClick={clearAll}>
+        <button className="clear" onClick={clearAll} aria-label="Clear all gates">
           CLEAR ALL
         </button>
       </div>

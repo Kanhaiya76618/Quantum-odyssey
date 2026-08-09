@@ -33,5 +33,11 @@ backend/venv/
 .vscode/
 .idea/
 
+# Temp & redundant directories
+.claude/
+.next/
+quantum-frontend/
+quantumodyssey/
+
 # macOS
 .DS_Store

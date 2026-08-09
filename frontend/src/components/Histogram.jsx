@@ -1,5 +1,9 @@
+import { motion, useReducedMotion } from "motion/react";
+
 export default function Histogram({ probabilities, numQubits }) {
+  const reduced = useReducedMotion();
   const entries = Object.entries(probabilities).sort(([a], [b]) => a.localeCompare(b));
+
   return (
     <div className="histogram">
       {entries.map(([basis, p]) => (
@@ -8,7 +12,13 @@ export default function Histogram({ probabilities, numQubits }) {
             ⟨{basis}⟩ {(p * 100).toFixed(1)}%
           </span>
           <div className="hbar-track">
-            <div className="hbar" style={{ width: `${p * 100}%` }} />
+            {/* scaleX (transform), never width — bar is full-width and scales from the left */}
+            <motion.div
+              className="hbar"
+              initial={reduced ? false : { scaleX: 0 }}
+              animate={{ scaleX: p }}
+              transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 30 }}
+            />
           </div>
         </div>
       ))}

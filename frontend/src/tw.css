@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0e1a;
+  --color-panel: #0d1224;
+  --color-cyan: #00e5ff;
+  --color-violet: #7c3aed;
+  --color-pink: #ff2d95;
+  --color-text: #e6f1ff;
+  --color-muted: #8b9bb4;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}

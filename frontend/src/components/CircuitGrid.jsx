@@ -1,6 +1,7 @@
+import { motion, useReducedMotion } from "motion/react";
 import { useCircuitStore, NUM_COLS } from "../store/circuitStore";
 
-const CELL = 56;
+const CELL = 44;
 const DISPLAY = { sdg: "S†", tdg: "T†" };
 
 export function formatTheta(t) {
@@ -50,6 +51,7 @@ export default function CircuitGrid() {
   const notice = useCircuitStore((s) => s.notice);
   const cellClick = useCircuitStore((s) => s.cellClick);
   const eraseAt = useCircuitStore((s) => s.eraseAt);
+  const reduced = useReducedMotion();
 
   const lines = connectors(grid, numQubits);
   const pendingAt = (q, col) => pending && pending.cells.find((c) => c.q === q && c.col === col);
@@ -81,16 +83,32 @@ export default function CircuitGrid() {
               <div
                 key={`${q}-${col}`}
                 role="button"
-                aria-label={`q${q} col ${col}`}
+                tabIndex={0}
+                aria-label={`q${q} col ${col}${cell ? `, ${label}` : ""}`}
                 className={cls.join(" ")}
                 style={{ left: col * CELL, top: q * CELL }}
                 onClick={() => cellClick(q, col)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    cellClick(q, col);
+                  }
+                }}
                 onContextMenu={(e) => {
                   e.preventDefault();
                   eraseAt(q, col);
                 }}
               >
-                {cell && <span className={`tag ${kind}`}>{label}</span>}
+                {cell && (
+                  <motion.span
+                    className={`tag ${kind}`}
+                    initial={reduced ? false : { scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
+                    {label}
+                  </motion.span>
+                )}
                 {pend && !cell && <span className="tag ghost">{pend.role === "control" ? "●" : "◌"}</span>}
                 {notice && notice.q === q && notice.col === col && <span className="tip">{notice.msg}</span>}
               </div>
