@@ -1,0 +1,21 @@
+# Git & temporary
+.git
+.gitignore
+.claude
+.DS_Store
+*.md
+
+# Node / JS
+node_modules
+frontend/node_modules
+dist
+build
+npm-debug.log*
+
+# Python
+__pycache__
+*.pyc
+.venv
+venv
+backend/.venv
+.pytest_cache

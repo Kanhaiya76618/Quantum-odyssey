@@ -2,6 +2,9 @@ fastapi
 uvicorn[standard]
 qiskit>=1.0
 qiskit-aer
+qiskit-ibm-runtime
+numpy
+scipy
 pydantic>=2
 pytest
 httpx

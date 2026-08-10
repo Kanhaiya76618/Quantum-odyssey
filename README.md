@@ -1,50 +1,57 @@
-# Quantum Odyssey
+# Quantum Odyssey ⚡
 
-An interactive archive of quantum discovery — a Next.js front end backed by a
-FastAPI service that runs real circuits through Qiskit Aer.
+An interactive quantum discovery platform & fintech optimization engine — combining an architectural Paper & Ink 3D Quantum Museum, 2D Qubit City circuit builder, and **The Quantum Arbitrage Compass (ERA V)** backed by FastAPI, Qiskit 1.x, and real IBM Quantum Hardware API integration.
 
-## Layout
+## 🚀 Quick Start with Docker
 
-| Path              | What it is                                                    |
-| ----------------- | ------------------------------------------------------------- |
-| `quantumodyssey/` | The Next.js 15 app (the front end that is actively developed) |
-| `backend/`        | FastAPI + Qiskit Aer statevector simulator                    |
-| `frontend/`       | The earlier Vite prototype, kept for reference                |
-
-## Running it
-
-Start the backend first — the app probes it on boot and falls back to its
-in-browser simulator when it is unreachable.
+The fastest way to launch the complete system (both Frontend and Backend) is via Docker Compose:
 
 ```bash
-backend/.venv/bin/uvicorn app.main:app --port 8000 --app-dir backend
+docker-compose up --build
 ```
+
+- **Frontend Application**: [http://localhost:3000](http://localhost:3000)
+- **FastAPI Qiskit Backend**: [http://localhost:8000](http://localhost:8000)
+- **Backend API Health Check**: [http://localhost:8000/health](http://localhost:8000/health)
+
+---
+
+## 🛠️ Local Development (Without Docker)
+
+### 1. Start the FastAPI + Qiskit Backend
 
 ```bash
-npm --prefix quantumodyssey run dev
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-The app is then at http://localhost:4028 and the API at http://localhost:8000.
+### 2. Start the React + Vite Frontend
 
-## How the two halves talk
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-`quantumodyssey/src/lib/api.ts` is the only place that knows about the backend.
-It points at `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`) and calls:
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-- `GET /health` — probed once on mount to set the Qiskit/Local status badge
-- `POST /circuit/simulate` — `{ num_qubits, gates[] }` in; exact statevector,
-  probabilities, per-qubit Bloch vectors, OpenQASM 2.0 and an ASCII diagram out
+---
 
-Two conventions matter when reading that code:
+## 🌟 Key Features
 
-- **Bit order.** Qiskit is little-endian (q0 is the rightmost bit); the UI labels
-  basis states with q0 leftmost. `flipBits` converts between them, and
-  everything stored or displayed is in UI order.
-- **Two-qubit gates.** The builder places a gate on a single anchor qubit, so
-  `CNOT`/`CX`/`SWAP` implicitly act on `(q, (q + 1) % n)`. `toBackendGates`
-  expands that into explicit control/target pairs.
+1. **ERA V — The Quantum Arbitrage Compass**:
+   - Formulates currency exchange graph routing into a QUBO optimization problem.
+   - Runs a 30-iteration COBYLA classical-quantum variational optimization loop.
+   - Executes on real IBM Quantum Hardware (via `QiskitRuntimeService` & `SamplerV2`) with **TREX Level 1 Error Mitigation**.
+   - Populates the generated QAOA circuit ansatz directly into the 2D Qubit City grid and monolith skyline!
+2. **Grand Quantum Museum**: 3D paper architectural building housing 71 historical quantum mechanics timeline milestones (1621–2025).
+3. **2D Qubit City**: Dynamic paper monolith skyline & Hilbert space wave density visualizer ($|\Psi(x)|^2$).
+4. **Interactive Quantum Physics Labs**: Wave Ocean double-slit interference rig & Schrödinger's Cat superposition collapse experiment.
 
-When the backend answers, The Machine uses the exact amplitudes for the state
-vector, the measurement histogram, the Bloch spheres and Eigen's narration, and
-writes the run to `localStorage` under `qo:lastRun` so the Circuit Dashboard
-reports the same numbers instead of sample data.
+---
+
+## 📄 License
+MIT License
