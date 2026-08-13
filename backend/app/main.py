@@ -2,7 +2,7 @@ import qiskit
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import arbitrage, circuit
+from app.routers import agent, arbitrage, circuit
 
 app = FastAPI(title="Quantum Odyssey API")
 
@@ -15,6 +15,7 @@ app.add_middleware(
 
 app.include_router(circuit.router, prefix="/circuit")
 app.include_router(arbitrage.router, prefix="/fintech")
+app.include_router(agent.router, prefix="/agent")
 
 
 @app.get("/health")
