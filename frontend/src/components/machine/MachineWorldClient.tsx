@@ -3166,6 +3166,7 @@ function CircuitShareModal({
 const COLS = 11;
 
 export default function MachineWorldClient() {
+  const setView = useCircuitStore((s) => s.setView);
   const shouldReduceMotion = useReducedMotion();
   const [gates, setGates] = useState<Gate[]>(buildInitialGates);
   const [gateHistory, setGateHistory] = useState<Gate[][]>([buildInitialGates()]);
@@ -3904,8 +3905,8 @@ export default function MachineWorldClient() {
             transition={{ duration: 0.5, delay: 0.6 }}
             style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}
           >
-            <Link
-              href="/archive-view-3d-scene"
+            <button
+              onClick={() => setView('archive')}
               aria-label="Back to Archive"
               style={{
                 fontFamily: 'JetBrains Mono, monospace',
@@ -3913,19 +3914,20 @@ export default function MachineWorldClient() {
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
                 color: N.textSoft,
-                textDecoration: 'none',
+                background: 'transparent',
                 border: `1px solid ${N.panelBorder}`,
                 borderRadius: 999,
                 padding: '8px 18px',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
+                cursor: 'pointer',
                 transition: 'all 0.15s ease',
                 minHeight: 44,
               }}
             >
               ← Back to Archive
-            </Link>
+            </button>
             <span className="hidden sm:inline" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: N.textDim }}>
               Enter run · ⌘Z undo · ⌘⇧Z redo · ⌘B debug · ⌘N noise · ⌘O optimize · ⌘L library · ⌘D download · Esc close
             </span>

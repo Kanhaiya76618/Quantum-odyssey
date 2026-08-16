@@ -409,12 +409,18 @@ export default function ArchiveViewClient() {
   }, []);
 
   const openEvent = useCallback((event: QuantumEvent) => {
-    setArchiveState(prev => ({
-      ...prev,
-      mode: 'detail',
-      activeYear: event,
-      visitedIds: new Set([...prev.visitedIds, event.id]),
-    }));
+    setArchiveState(prev => {
+      const idx = prev.activeCentury
+        ? prev.activeCentury.events.findIndex(e => e.id === event.id)
+        : -1;
+      return {
+        ...prev,
+        mode: 'detail',
+        activeYear: event,
+        selectedStationIndex: idx >= 0 ? idx : prev.selectedStationIndex,
+        visitedIds: new Set([...prev.visitedIds, event.id]),
+      };
+    });
   }, []);
 
   const closeDetail = useCallback(() => {
