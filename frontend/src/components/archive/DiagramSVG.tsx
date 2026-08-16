@@ -370,6 +370,209 @@ function ErrorCorrectionDiagram({ rm }: { rm: boolean }) {
   );
 }
 
+function PrismOpticksDiagram({ rm }: { rm: boolean }) {
+  return (
+    <svg viewBox="0 0 400 240" width="340" height="204" fill="none" style={{ backgroundColor: '#FDFBF7', border: '2px solid #1A1A1A', borderRadius: 8 }}>
+      {/* Ink Prism */}
+      <polygon points="150,50 250,50 200,150" fill="#F2F0EA" stroke="#1A1A1A" strokeWidth="2.5" strokeLinejoin="round" />
+      
+      {/* Incoming White Light */}
+      <AnimLine x1={20} y1={100} x2={150} y2={100} stroke="#1A1A1A" strokeWidth="2.5" rm={rm} delay={0.1} />
+      <text x="35" y="90" fontFamily="Georgia, serif" fontSize="12" fill="#4B5563" fontWeight="bold">White Light</text>
+      
+      {/* Outgoing Spectrum Rays */}
+      <AnimLine x1={250} y1={100} x2={375} y2={50} stroke="#EF4444" strokeWidth="2" strokeDasharray="4 2" rm={rm} delay={0.3} />
+      <AnimLine x1={250} y1={100} x2={375} y2={75} stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 2" rm={rm} delay={0.35} />
+      <AnimLine x1={250} y1={100} x2={375} y2={100} stroke="#10B981" strokeWidth="2" strokeDasharray="4 2" rm={rm} delay={0.4} />
+      <AnimLine x1={250} y1={100} x2={375} y2={125} stroke="#3B82F6" strokeWidth="2" strokeDasharray="4 2" rm={rm} delay={0.45} />
+      <AnimLine x1={250} y1={100} x2={375} y2={150} stroke="#8B5CF6" strokeWidth="2" strokeDasharray="4 2" rm={rm} delay={0.5} />
+      
+      {/* Mathematical Angle Indicators */}
+      <path d="M 160 100 A 15 15 0 0 1 170 85" fill="none" stroke="#4B5563" strokeWidth="1" />
+      <text x="165" y="80" fontFamily="Georgia, serif" fontSize="11" fill="#4B5563" fontStyle="italic">θ</text>
+      <path d="M 240 100 A 15 15 0 0 0 230 115" fill="none" stroke="#4B5563" strokeWidth="1" />
+      <text x="225" y="125" fontFamily="Georgia, serif" fontSize="11" fill="#4B5563" fontStyle="italic">φ</text>
+      
+      {/* Formula Text */}
+      <text x="90" y="210" fontFamily="Georgia, serif" fontSize="14" fill="#1A1A1A" fontStyle="italic" fontWeight="bold">n = sin(θ) / sin(φ) · Dispersion Index</text>
+    </svg>
+  );
+}
+
+function CoulombDiagram({ rm }: { rm: boolean }) {
+  return (
+    <svg viewBox="0 0 400 240" width="340" height="204" fill="none" style={{ backgroundColor: '#FDFBF7', border: '2px solid #1A1A1A', borderRadius: 8 }}>
+      {/* Torsion Wire (Vertical) */}
+      <line x1="200" y1="15" x2="200" y2="90" stroke="#1A1A1A" strokeWidth="2" strokeDasharray="3 3" />
+      
+      {/* Horizontal Rod */}
+      <line x1="110" y1="90" x2="290" y2="90" stroke="#1A1A1A" strokeWidth="3" strokeLinecap="round" />
+      
+      {/* Charged Spheres */}
+      <circle cx="110" cy="90" r="14" fill="#F2F0EA" stroke="#1A1A1A" strokeWidth="2.5" />
+      <circle cx="290" cy="90" r="14" fill="#F2F0EA" stroke="#1A1A1A" strokeWidth="2.5" />
+      <text x="105" y="95" fontFamily="Georgia, serif" fontSize="13" fill="#1A1A1A" fontWeight="bold">q₁</text>
+      <text x="285" y="95" fontFamily="Georgia, serif" fontSize="13" fill="#1A1A1A" fontWeight="bold">q₂</text>
+      
+      {/* Distance Indicator (r) */}
+      <line x1="110" y1="130" x2="290" y2="130" stroke="#4B5563" strokeWidth="1.2" />
+      <line x1="110" y1="125" x2="110" y2="135" stroke="#4B5563" strokeWidth="1.2" />
+      <line x1="290" y1="125" x2="290" y2="135" stroke="#4B5563" strokeWidth="1.2" />
+      <text x="195" y="145" fontFamily="Georgia, serif" fontSize="13" fill="#4B5563" fontStyle="italic">r</text>
+      
+      {/* Inverse Square Radiance */}
+      <circle cx="110" cy="90" r="35" fill="none" stroke="#4B5563" strokeWidth="0.8" opacity="0.4" />
+      <circle cx="110" cy="90" r="60" fill="none" stroke="#4B5563" strokeWidth="0.8" opacity="0.2" />
+      <circle cx="290" cy="90" r="35" fill="none" stroke="#4B5563" strokeWidth="0.8" opacity="0.4" />
+      <circle cx="290" cy="90" r="60" fill="none" stroke="#4B5563" strokeWidth="0.8" opacity="0.2" />
+      
+      {/* Formula Text */}
+      <text x="130" y="205" fontFamily="Georgia, serif" fontSize="16" fill="#1A1A1A" fontWeight="bold">F = k · (q₁ · q₂) / r²</text>
+    </svg>
+  );
+}
+
+function YoungWaveDiagram({ rm }: { rm: boolean }) {
+  return (
+    <svg viewBox="0 0 400 240" width="340" height="204" fill="none" style={{ backgroundColor: '#FDFBF7', border: '2px solid #1A1A1A', borderRadius: 8 }}>
+      {/* Wave Sources */}
+      <circle cx="130" cy="110" r="4" fill="#1A1A1A" />
+      <circle cx="210" cy="110" r="4" fill="#1A1A1A" />
+      <text x="115" y="115" fontFamily="Georgia, serif" fontSize="11" fill="#1A1A1A" fontWeight="bold">S₁</text>
+      <text x="220" y="115" fontFamily="Georgia, serif" fontSize="11" fill="#1A1A1A" fontWeight="bold">S₂</text>
+      
+      {/* Concentric Wavefronts */}
+      {[25, 50, 75, 100].map((r, i) => (
+        <React.Fragment key={`wave-${i}`}>
+          <circle cx="130" cy="110" r={r} fill="none" stroke="#1A1A1A" strokeWidth="1.2" opacity={0.6 - i * 0.12} />
+          <circle cx="210" cy="110" r={r} fill="none" stroke="#1A1A1A" strokeWidth="1.2" opacity={0.6 - i * 0.12} />
+        </React.Fragment>
+      ))}
+      
+      {/* Target Point P */}
+      <AnimLine x1={130} y1={110} x2={330} y2={50} stroke="#4B5563" strokeWidth="1.2" strokeDasharray="3 3" rm={rm} delay={0.2} />
+      <AnimLine x1={210} y1={110} x2={330} y2={50} stroke="#4B5563" strokeWidth="1.2" strokeDasharray="3 3" rm={rm} delay={0.3} />
+      <circle cx="330" cy="50" r="3.5" fill="#EF4444" />
+      <text x="340" y="52" fontFamily="Georgia, serif" fontSize="13" fill="#1A1A1A" fontWeight="bold">P</text>
+      
+      {/* Formula Text */}
+      <text x="95" y="210" fontFamily="Georgia, serif" fontSize="14" fill="#1A1A1A" fontStyle="italic" fontWeight="bold">d · sin(θ) = mλ · Wave Interference</text>
+    </svg>
+  );
+}
+
+function RefractionDiagram({ rm }: { rm: boolean }) {
+  return (
+    <svg viewBox="0 0 400 240" width="340" height="204" fill="none" style={{ backgroundColor: '#FDFBF7', border: '2px solid #1A1A1A', borderRadius: 8 }}>
+      {/* Interface Boundary (Water / Glass) */}
+      <rect x="20" y="110" width="360" height="110" fill="#EAE7DF" stroke="#1A1A1A" strokeWidth="1.5" />
+      <text x="35" y="100" fontFamily="Georgia, serif" fontSize="12" fill="#4B5563" fontWeight="bold">Medium 1 (Air: n₁)</text>
+      <text x="35" y="130" fontFamily="Georgia, serif" fontSize="12" fill="#4B5563" fontWeight="bold">Medium 2 (Glass: n₂)</text>
+
+      {/* Normal Line */}
+      <line x1="200" y1="20" x2="200" y2="210" stroke="#1A1A1A" strokeWidth="1.5" strokeDasharray="3 3" />
+
+      {/* Incident Ray */}
+      <AnimLine x1={80} y1={30} x2={200} y2={110} stroke="#EF4444" strokeWidth="2.5" rm={rm} delay={0.1} />
+      {/* Refracted Bent Ray */}
+      <AnimLine x1={200} y1={110} x2={280} y2={200} stroke="#3B82F6" strokeWidth="2.5" rm={rm} delay={0.3} />
+
+      {/* Angle Arcs */}
+      <path d="M 185 85 A 25 25 0 0 1 200 85" fill="none" stroke="#EF4444" strokeWidth="1.5" />
+      <text x="175" y="75" fontFamily="Georgia, serif" fontSize="12" fill="#EF4444" fontStyle="italic">θ₁</text>
+
+      <path d="M 200 145 A 35 35 0 0 0 225 140" fill="none" stroke="#3B82F6" strokeWidth="1.5" />
+      <text x="215" y="160" fontFamily="Georgia, serif" fontSize="12" fill="#3B82F6" fontStyle="italic">θ₂</text>
+
+      {/* Formula */}
+      <text x="75" y="230" fontFamily="Georgia, serif" fontSize="15" fill="#1A1A1A" fontStyle="italic" fontWeight="bold">n₁ · sin(θ₁) = n₂ · sin(θ₂) · Snell's Law</text>
+    </svg>
+  );
+}
+
+function DiffractionDiagram({ rm }: { rm: boolean }) {
+  return (
+    <svg viewBox="0 0 400 240" width="340" height="204" fill="none" style={{ backgroundColor: '#FDFBF7', border: '2px solid #1A1A1A', borderRadius: 8 }}>
+      {/* Opaque Obstacle */}
+      <rect x="150" y="40" width="20" height="140" fill="#1A1A1A" rx="2" />
+      <text x="135" y="30" fontFamily="Georgia, serif" fontSize="12" fill="#1A1A1A" fontWeight="bold">Obstacle</text>
+
+      {/* Incoming Parallel Light Rays */}
+      {[50, 80, 110, 140, 170].map((y, i) => (
+        <AnimLine key={`in-${i}`} x1={30} y1={y} x2={140} y2={y} stroke="#1A1A1A" strokeWidth="2" rm={rm} delay={i * 0.05} />
+      ))}
+
+      {/* Diffracted Bending Waves Into Geometric Shadow */}
+      <path d="M 170 40 Q 230 45 320 15" fill="none" stroke="#10B981" strokeWidth="2" strokeDasharray="3 2" />
+      <path d="M 170 40 Q 240 70 320 60" fill="none" stroke="#10B981" strokeWidth="2" />
+      <path d="M 170 180 Q 240 150 320 160" fill="none" stroke="#10B981" strokeWidth="2" />
+      <path d="M 170 180 Q 230 175 320 205" fill="none" stroke="#10B981" strokeWidth="2" strokeDasharray="3 2" />
+
+      {/* Shadow Core */}
+      <rect x="200" y="85" width="120" height="50" fill="#EAE7DF" opacity="0.6" />
+      <text x="215" y="115" fontFamily="Georgia, serif" fontSize="12" fill="#4B5563" fontStyle="italic">Diffraction Shadow</text>
+
+      {/* Formula */}
+      <text x="75" y="225" fontFamily="Georgia, serif" fontSize="14" fill="#1A1A1A" fontStyle="italic" fontWeight="bold">Grimaldi's Bending Around Shadow Edges</text>
+    </svg>
+  );
+}
+
+function SpeedOfLightDiagram({ rm }: { rm: boolean }) {
+  return (
+    <svg viewBox="0 0 400 240" width="340" height="204" fill="none" style={{ backgroundColor: '#FDFBF7', border: '2px solid #1A1A1A', borderRadius: 8 }}>
+      {/* Sun at center-left */}
+      <circle cx="100" cy="110" r="22" fill="#F59E0B" stroke="#1A1A1A" strokeWidth="2" />
+      <text x="90" y="115" fontFamily="Georgia, serif" fontSize="11" fill="#1A1A1A" fontWeight="bold">Sun</text>
+
+      {/* Earth Orbit */}
+      <ellipse cx="100" cy="110" rx="65" ry="55" fill="none" stroke="#4B5563" strokeWidth="1" strokeDasharray="3 3" />
+      {/* Earth Position 1 & Position 2 */}
+      <circle cx="165" cy="110" r="8" fill="#3B82F6" stroke="#1A1A1A" strokeWidth="1.5" />
+      <text x="155" y="95" fontFamily="Georgia, serif" fontSize="10" fill="#1A1A1A" fontWeight="bold">E₁ (Near)</text>
+
+      <circle cx="35" cy="110" r="8" fill="#3B82F6" stroke="#1A1A1A" strokeWidth="1.5" />
+      <text x="15" y="95" fontFamily="Georgia, serif" fontSize="10" fill="#1A1A1A" fontWeight="bold">E₂ (Far)</text>
+
+      {/* Jupiter & Io */}
+      <circle cx="330" cy="110" r="26" fill="#E0DCD2" stroke="#1A1A1A" strokeWidth="2" />
+      <text x="315" y="115" fontFamily="Georgia, serif" fontSize="11" fill="#1A1A1A" fontWeight="bold">Jupiter</text>
+      <circle cx="330" cy="72" r="5" fill="#EF4444" stroke="#1A1A1A" strokeWidth="1" />
+      <text x="340" y="75" fontFamily="Georgia, serif" fontSize="10" fill="#EF4444" fontWeight="bold">Io</text>
+
+      {/* Light travel paths with delay */}
+      <AnimLine x1={330} y1={72} x2={165} y2={110} stroke="#D97706" strokeWidth="2" rm={rm} delay={0.1} />
+      <AnimLine x1={330} y1={72} x2={35} y2={110} stroke="#D97706" strokeWidth="2" strokeDasharray="4 2" rm={rm} delay={0.3} />
+
+      {/* Formula */}
+      <text x="65" y="215" fontFamily="Georgia, serif" fontSize="15" fill="#1A1A1A" fontWeight="bold">c = Δd / Δt = 299,792,458 m/s (Rømer 1676)</text>
+    </svg>
+  );
+}
+
+function AberrationDiagram({ rm }: { rm: boolean }) {
+  return (
+    <svg viewBox="0 0 400 240" width="340" height="204" fill="none" style={{ backgroundColor: '#FDFBF7', border: '2px solid #1A1A1A', borderRadius: 8 }}>
+      {/* Incoming Starlight Vector (c) */}
+      <AnimLine x1={200} y1={30} x2={200} y2={150} stroke="#1A1A1A" strokeWidth="2.5" rm={rm} delay={0.1} />
+      <polygon points="200,154 195,144 205,144" fill="#1A1A1A" />
+      <text x="210" y="90" fontFamily="Georgia, serif" fontSize="13" fill="#1A1A1A" fontWeight="bold">c (Starlight)</text>
+
+      {/* Earth Velocity Vector (v) */}
+      <AnimLine x1={200} y1={150} x2={290} y2={150} stroke="#2563EB" strokeWidth="2.5" rm={rm} delay={0.3} />
+      <polygon points="294,150 284,145 284,155" fill="#2563EB" />
+      <text x="235" y="170" fontFamily="Georgia, serif" fontSize="13" fill="#2563EB" fontWeight="bold">v (Earth)</text>
+
+      {/* Resultant Apparent Angle (Apparent Direction) */}
+      <AnimLine x1={200} y1={30} x2={290} y2={150} stroke="#EF4444" strokeWidth="2" strokeDasharray="3 3" rm={rm} delay={0.4} />
+      <text x="160" y="55" fontFamily="Georgia, serif" fontSize="13" fill="#EF4444" fontStyle="italic">α (Aberration)</text>
+
+      {/* Formula */}
+      <text x="65" y="215" fontFamily="Georgia, serif" fontSize="15" fill="#1A1A1A" fontStyle="italic" fontWeight="bold">tan(α) = v / c · Bradley's Stellar Aberration (1727)</text>
+    </svg>
+  );
+}
+
 function GenericCard({ title, year, people }: { title: string; year: number; people: string[] }) {
   return (
     <svg width="280" height="160" viewBox="0 0 280 160" fill="none" aria-label={`Key discovery: ${title}`}>
@@ -391,7 +594,15 @@ function GenericCard({ title, year, people }: { title: string; year: number; peo
 
 // --- Concept → Diagram map ---
 const DIAGRAM_MAP: Record<string, React.ComponentType<{ rm: boolean }>> = {
-  'double-slit': DoubleSlit,
+  'refraction': RefractionDiagram,
+  'diffraction': DiffractionDiagram,
+  'speed-of-light': SpeedOfLightDiagram,
+  'aberration': AberrationDiagram,
+  'opticks': PrismOpticksDiagram,
+  'spectrum': PrismOpticksDiagram,
+  'coulomb': CoulombDiagram,
+  'double-slit': YoungWaveDiagram,
+  'wave': YoungWaveDiagram,
   'photoelectric': PhotoelectricDiagram,
   'bohr': BohrDiagram,
   'uncertainty': UncertaintyDiagram,
@@ -401,9 +612,7 @@ const DIAGRAM_MAP: Record<string, React.ComponentType<{ rm: boolean }>> = {
   'blackbody': BlackbodyDiagram,
   'transistor': TransistorDiagram,
   'error-correction': ErrorCorrectionDiagram,
-  'wave': BlochDiagram,
   'particle': BohrDiagram,
-  'spectrum': BlackbodyDiagram,
 };
 
 export default function DiagramSVG({ concept, eventId, shouldReduceMotion }: DiagramSVGProps) {
