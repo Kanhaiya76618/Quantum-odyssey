@@ -3,29 +3,31 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCircuitStore } from '../../store/circuitStore';
 import { QUANTUM_EVENTS } from '../../content/quantum_timeline';
 
+// ─── Paper & Ink Design Tokens ───────────────────────────────────────────────
 const N = {
-  bg: '#050A14',
-  bg2: '#080F1E',
-  panel: 'rgba(0,255,209,0.04)',
-  panelBorder: 'rgba(0,255,209,0.18)',
-  cyan: '#00FFD1',
-  violet: '#9B5DE5',
-  pink: '#FF2D78',
-  amber: '#FFB800',
-  blue: '#3B82F6',
-  gridLine: 'rgba(0,255,209,0.07)',
-  textPrimary: '#E8F4F0',
-  textSoft: 'rgba(232,244,240,0.55)',
-  textDim: 'rgba(232,244,240,0.28)',
+  bg: '#FDFBF7',               // Warm Paper Background
+  bg2: '#F5F2EA',              // Secondary Drafting Paper
+  panel: '#FFFFFF',            // Crisp Manuscript Card
+  panelBorder: '#1A1A1A',      // High-contrast ink border
+  panelBorderSoft: '#D8D4C7',  // Soft drafting line
+  cyan: '#0F766E',             // Deep teal ink
+  violet: '#6D28D9',           // Rich violet ink
+  pink: '#BE123C',             // Deep crimson ink
+  amber: '#D97706',            // Warm amber / gold
+  blue: '#1D4ED8',             // Cobalt blueprint ink
+  gridLine: 'rgba(26,26,26,0.05)', // Engineering paper drafting grid
+  textPrimary: '#0A0A0A',      // Pure ink black
+  textSoft: '#4A4740',         // Soft ink body
+  textDim: '#78756C',          // Muted drafting annotations
 };
 
 const GATE_TYPES = ['H', 'X', 'Y', 'Z', 'CNOT', 'T', 'S', 'RZ', 'CX', 'SWAP'] as const;
 type GateType = typeof GATE_TYPES[number];
 
 const GATE_COLORS: Record<GateType, string> = {
-  H: N.cyan, X: N.pink, Y: N.violet, Z: N.amber,
-  CNOT: N.cyan, T: N.pink, S: N.violet, RZ: N.amber,
-  CX: N.blue, SWAP: N.cyan,
+  H: N.cyan, X: N.pink, Y: N.violet, Z: N.blue,
+  CNOT: N.amber, T: '#C2410C', S: N.cyan, RZ: N.violet,
+  CX: N.amber, SWAP: N.pink,
 };
 
 const INITIAL_GATE_COUNTS: Record<GateType, number> = {
@@ -41,18 +43,25 @@ const QUBIT_DATA = [
 const CIRCUIT_STATS = [
   { label: 'Total Gates', value: '15', color: N.cyan, sub: 'across 3 qubits' },
   { label: 'Circuit Depth', value: '10', color: N.violet, sub: 'columns' },
-  { label: 'Gate Fidelity', value: '99.8%', color: N.amber, sub: 'avg per gate' },
+  { label: 'Gate Fidelity', value: '99.8%', color: '#059669', sub: 'avg per gate' },
   { label: 'T1 Coherence', value: '127 μs', color: N.pink, sub: 'decoherence time' },
 ];
 
-function NeonGrid() {
+function PaperGrid() {
   return (
     <div
       aria-hidden="true"
       style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        backgroundImage: `linear-gradient(${N.gridLine} 1px, transparent 1px), linear-gradient(90deg, ${N.gridLine} 1px, transparent 1px)`,
-        backgroundSize: '48px 48px',
+        position: 'fixed',
+        inset: 0,
+        zIndex: 0,
+        pointerEvents: 'none',
+        backgroundImage: `
+          linear-gradient(rgba(26,26,26,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(26,26,26,0.05) 1px, transparent 1px)
+        `,
+        backgroundSize: '36px 36px',
+        backgroundColor: '#FDFBF7',
       }}
     />
   );
@@ -61,26 +70,25 @@ function NeonGrid() {
 function StatCard({ label, value, color, sub }: { label: string; value: string; color: string; sub: string }) {
   return (
     <motion.article
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.02, y: -2 }}
       aria-label={`${label}: ${value} — ${sub}`}
       style={{
-        background: N.panel,
-        border: `1px solid ${color}30`,
+        background: '#FFFFFF',
+        border: `1.5px solid #1A1A1A`,
         borderRadius: 14,
         padding: 'clamp(14px, 3vw, 20px) clamp(14px, 3vw, 22px)',
-        boxShadow: `0 0 20px ${color}08`,
+        boxShadow: `3px 3px 0px rgba(26,26,26,0.06)`,
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${color}60, transparent)` }} />
-      <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: '0.14em', color: N.textDim, textTransform: 'uppercase', marginBottom: 8 }}>
+      <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: '0.14em', color: N.textDim, textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
         {label}
       </div>
-      <div style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 700, color, lineHeight: 1, marginBottom: 4, textShadow: `0 0 20px ${color}40` }}>
+      <div style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(24px, 5vw, 34px)', fontWeight: 800, color, lineHeight: 1, marginBottom: 6 }}>
         {value}
       </div>
-      <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: N.textDim }}>
+      <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: N.textSoft, fontWeight: 500 }}>
         {sub}
       </div>
     </motion.article>
@@ -88,6 +96,7 @@ function StatCard({ label, value, color, sub }: { label: string; value: string; 
 }
 
 export default function CircuitDashboardPage() {
+  const setView = useCircuitStore((s) => s.setView);
   const [bookmarkedEvents, setBookmarkedEvents] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'gates' | 'qubits' | 'archive'>('gates');
   const [exportDone, setExportDone] = useState(false);
@@ -112,23 +121,21 @@ export default function CircuitDashboardPage() {
     if (!ctx) { setExporting(false); return; }
     ctx.scale(2, 2);
 
-    ctx.fillStyle = '#050A14';
+    ctx.fillStyle = '#FDFBF7';
     ctx.fillRect(0, 0, W, H);
 
-    ctx.strokeStyle = 'rgba(0,255,209,0.07)';
+    ctx.strokeStyle = 'rgba(26,26,26,0.06)';
     ctx.lineWidth = 1;
-    for (let i = 0; i < W; i += 48) {
+    for (let i = 0; i < W; i += 36) {
       ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
     }
-    for (let j = 0; j < H; j += 48) {
+    for (let j = 0; j < H; j += 36) {
       ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(W, j); ctx.stroke();
     }
 
-    ctx.font = '700 11px "JetBrains Mono", monospace';
-    ctx.fillStyle = N.cyan;
-    ctx.globalAlpha = 0.7;
-    ctx.fillText('QUANTUM CIRCUIT DASHBOARD — EXPORT', 24, 28);
-    ctx.globalAlpha = 1;
+    ctx.font = '700 12px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#0A0A0A';
+    ctx.fillText('QUANTUM CIRCUIT DASHBOARD — ARCHIVAL BLUEPRINT', 24, 28);
 
     const COLS = 11, COL_W = 52, ROW_H = 52, LABEL_W = 52, PAD = 24;
     const circuitLayout = [
@@ -141,17 +148,15 @@ export default function CircuitDashboardPage() {
 
     QUBIT_DATA.forEach((q, qi) => {
       const y = 50 + qi * ROW_H + ROW_H / 2;
-      ctx.strokeStyle = q.color;
-      ctx.globalAlpha = 0.4;
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#1A1A1A';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(PAD + LABEL_W, y);
       ctx.lineTo(PAD + LABEL_W + COLS * COL_W, y);
       ctx.stroke();
-      ctx.globalAlpha = 1;
 
-      ctx.font = '700 12px "JetBrains Mono", monospace';
-      ctx.fillStyle = q.color;
+      ctx.font = '800 13px "JetBrains Mono", monospace';
+      ctx.fillStyle = '#0A0A0A';
       ctx.textAlign = 'right';
       ctx.fillText(q.label, PAD + LABEL_W - 8, y + 4);
       ctx.textAlign = 'left';
@@ -160,14 +165,14 @@ export default function CircuitDashboardPage() {
         const gx = PAD + LABEL_W + g.col * COL_W + COL_W / 2 - 18;
         const gy = y - 18;
         const color = GATE_COLORS[g.type as GateType] || N.cyan;
-        ctx.fillStyle = `${color}15`;
-        ctx.strokeStyle = color;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#1A1A1A';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.roundRect(gx, gy, 36, 36, 6);
         ctx.fill();
         ctx.stroke();
-        ctx.font = `700 ${g.type.length > 2 ? 7 : 10}px "JetBrains Mono", monospace`;
+        ctx.font = `800 ${g.type.length > 2 ? 8 : 11}px "JetBrains Mono", monospace`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.fillText(g.type, gx + 18, gy + 22);
@@ -176,26 +181,26 @@ export default function CircuitDashboardPage() {
     });
 
     const statsY = H - 40;
-    ctx.fillStyle = 'rgba(0,255,209,0.04)';
+    ctx.fillStyle = '#F5F2EA';
     ctx.fillRect(0, statsY - 10, W, 50);
-    ctx.strokeStyle = N.panelBorder;
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#1A1A1A';
+    ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(0, statsY - 10); ctx.lineTo(W, statsY - 10); ctx.stroke();
 
     const stats = [
       { label: 'GATES', value: '15', color: N.cyan },
       { label: 'DEPTH', value: '10', color: N.violet },
-      { label: 'FIDELITY', value: '99.8%', color: N.amber },
+      { label: 'FIDELITY', value: '99.8%', color: '#059669' },
       { label: 'T1', value: '127μs', color: N.pink },
     ];
     stats.forEach((s, i) => {
       const sx = PAD + i * 180;
-      ctx.font = '400 9px "JetBrains Mono", monospace';
-      ctx.fillStyle = N.textDim;
+      ctx.font = '700 9px "JetBrains Mono", monospace';
+      ctx.fillStyle = '#4A4740';
       ctx.fillText(s.label, sx, statsY + 4);
-      ctx.font = '700 14px "JetBrains Mono", monospace';
+      ctx.font = '800 15px "Fraunces", Georgia, serif';
       ctx.fillStyle = s.color;
-      ctx.fillText(s.value, sx, statsY + 20);
+      ctx.fillText(s.value, sx, statsY + 22);
     });
 
     canvas.toBlob(blob => {
@@ -217,8 +222,8 @@ export default function CircuitDashboardPage() {
   const maxGateCount = Math.max(...Object.values(INITIAL_GATE_COUNTS));
 
   return (
-    <div style={{ minHeight: '100vh', background: N.bg, color: N.textPrimary, position: 'relative', overflow: 'hidden' }}>
-      <NeonGrid />
+    <div style={{ minHeight: '100vh', background: '#FDFBF7', color: '#0A0A0A', position: 'relative', overflow: 'hidden' }}>
+      <PaperGrid />
 
       {/* Header */}
       <motion.header
@@ -231,36 +236,31 @@ export default function CircuitDashboardPage() {
           position: 'relative', zIndex: 10,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexWrap: 'wrap', gap: 8,
-          padding: '0 clamp(16px, 4vw, 32px)', minHeight: 60,
-          borderBottom: `1px solid ${N.panelBorder}`,
-          background: 'rgba(5,10,20,0.85)', backdropFilter: 'blur(12px)',
+          padding: '0 clamp(16px, 4vw, 32px)', minHeight: 64,
+          borderBottom: `1.5px solid #1A1A1A`,
+          background: 'rgba(253,251,247,0.92)', backdropFilter: 'blur(12px)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div aria-hidden="true" style={{ width: 28, height: 28, border: `1.5px solid ${N.cyan}`, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 10px ${N.cyan}40`, flexShrink: 0 }}>
-            <svg width={14} height={14} viewBox="0 0 14 14" aria-hidden="true">
-              <rect x={2} y={2} width={4} height={4} fill={N.cyan} opacity={0.8} rx={1} />
-              <rect x={8} y={2} width={4} height={4} fill={N.violet} opacity={0.8} rx={1} />
-              <rect x={2} y={8} width={4} height={4} fill={N.pink} opacity={0.8} rx={1} />
-              <rect x={8} y={8} width={4} height={4} fill={N.amber} opacity={0.8} rx={1} />
-            </svg>
+          <div aria-hidden="true" style={{ width: 28, height: 28, border: `1.5px solid #1A1A1A`, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EAE7DF', flexShrink: 0 }}>
+            <span style={{ fontSize: 14, color: '#0A0A0A', fontWeight: 800 }}>◈</span>
           </div>
-          <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(14px, 3vw, 16px)', fontWeight: 700, color: N.textPrimary, letterSpacing: '-0.01em', margin: 0 }}>
+          <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 'clamp(15px, 3vw, 18px)', fontWeight: 800, color: '#0A0A0A', letterSpacing: '-0.01em', margin: 0 }}>
             Circuit Dashboard
           </h1>
-          <span aria-label="Analytics panel" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: N.violet, border: `1px solid ${N.violet}40`, borderRadius: 4, padding: '2px 6px', letterSpacing: '0.1em' }}>
+          <span aria-label="Analytics panel" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: N.violet, border: `1px solid ${N.violet}`, borderRadius: 4, padding: '2px 6px', letterSpacing: '0.1em', fontWeight: 700 }}>
             ANALYTICS
           </span>
         </div>
 
         <nav aria-label="Dashboard navigation" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <button onClick={() => setView('machine-world')} aria-label="Go to Machine World" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: N.textSoft, background: 'transparent', border: `1px solid ${N.panelBorder}`, borderRadius: 999, padding: '6px 12px', minHeight: 36, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+          <button onClick={() => setView('machine-world')} aria-label="Go to Machine World" className="ghost-pill" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#1A1A1A', background: '#EAE7DF', border: `1.5px solid #1A1A1A`, borderRadius: 999, padding: '6px 14px', minHeight: 36, display: 'flex', alignItems: 'center', cursor: 'pointer', fontWeight: 600 }}>
             ← Machine World
           </button>
-          <button onClick={() => setView('archive')} aria-label="Go to Grand Quantum Museum" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: N.textSoft, background: 'transparent', border: 'none', padding: '6px 4px', minHeight: 36, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+          <button onClick={() => setView('archive')} aria-label="Go to Grand Quantum Museum" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4A4740', background: 'transparent', border: 'none', padding: '6px 8px', minHeight: 36, display: 'flex', alignItems: 'center', cursor: 'pointer', fontWeight: 600 }}>
             Grand Quantum Museum
           </button>
-          <button onClick={() => setView('city')} aria-label="Go to Fintech Compass" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: N.cyan, background: 'transparent', border: `1px solid ${N.cyan}50`, borderRadius: 999, padding: '6px 12px', minHeight: 36, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+          <button onClick={() => setView('city')} aria-label="Go to Fintech Compass" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0A0A0A', background: '#FEF3C7', border: `1.5px solid #D97706`, borderRadius: 999, padding: '6px 14px', minHeight: 36, display: 'flex', alignItems: 'center', cursor: 'pointer', fontWeight: 700 }}>
             Fintech Compass ⚡
           </button>
           <button
@@ -270,12 +270,12 @@ export default function CircuitDashboardPage() {
             aria-busy={exporting}
             style={{
               fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em',
-              color: exportDone ? N.bg : N.bg,
-              background: exportDone ? N.amber : exporting ? N.textDim : N.cyan,
-              border: `1.5px solid ${exportDone ? N.amber : exporting ? N.textDim : N.cyan}`,
-              borderRadius: 999, padding: '6px 14px', cursor: exporting ? 'wait' : 'pointer',
+              color: '#FFFFFF',
+              background: exportDone ? N.amber : exporting ? '#78756C' : '#1A1A1A',
+              border: `1.5px solid #1A1A1A`,
+              borderRadius: 999, padding: '6px 16px', cursor: exporting ? 'wait' : 'pointer',
               display: 'flex', alignItems: 'center', gap: 6,
-              boxShadow: `0 0 12px ${exportDone ? N.amber : N.cyan}40`,
+              boxShadow: `2px 2px 0px rgba(26,26,26,0.12)`,
               fontWeight: 700, transition: 'all 0.2s ease', minHeight: 36,
             }}
           >
@@ -293,7 +293,7 @@ export default function CircuitDashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           aria-label="Circuit statistics"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'clamp(10px, 2vw, 16px)', marginBottom: 'clamp(20px, 4vw, 32px)' }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'clamp(10px, 2vw, 16px)', marginBottom: 'clamp(20px, 4vw, 32px)' }}
         >
           {CIRCUIT_STATS.map(s => (
             <StatCard key={s.label} {...s} />
@@ -301,7 +301,7 @@ export default function CircuitDashboardPage() {
           <StatCard label="QAOA Arbitrage" value="+$285.60" color={N.cyan} sub="IBM Brisbane (127Q)" />
         </motion.section>
 
-        {/* Two-column layout — stacks on mobile */}
+        {/* Two-column layout */}
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 24 }}
           className="lg:grid-cols-[1fr_380px]"
         >
@@ -312,10 +312,10 @@ export default function CircuitDashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             aria-label="Circuit data panels"
-            style={{ background: N.panel, border: `1px solid ${N.panelBorder}`, borderRadius: 16, overflow: 'hidden' }}
+            style={{ background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 16, overflow: 'hidden', boxShadow: '4px 4px 0px rgba(26,26,26,0.06)' }}
           >
             {/* Tab bar */}
-            <div role="tablist" aria-label="Circuit data tabs" style={{ display: 'flex', borderBottom: `1px solid ${N.panelBorder}`, padding: '0 clamp(12px, 3vw, 20px)', overflowX: 'auto', scrollbarWidth: 'none' }}>
+            <div role="tablist" aria-label="Circuit data tabs" style={{ display: 'flex', borderBottom: `1.5px solid #1A1A1A`, background: '#F5F2EA', padding: '0 clamp(12px, 3vw, 20px)', overflowX: 'auto', scrollbarWidth: 'none' }}>
               {(['gates', 'qubits', 'archive'] as const).map(tab => (
                 <button
                   key={tab}
@@ -325,10 +325,11 @@ export default function CircuitDashboardPage() {
                   id={`tab-${tab}`}
                   onClick={() => setActiveTab(tab)}
                   style={{
-                    fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.12em',
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.12em',
                     textTransform: 'uppercase', padding: '14px clamp(10px, 2vw, 16px)', background: 'none', border: 'none',
-                    cursor: 'pointer', color: activeTab === tab ? N.cyan : N.textDim,
-                    borderBottom: activeTab === tab ? `2px solid ${N.cyan}` : '2px solid transparent',
+                    cursor: 'pointer', color: activeTab === tab ? '#0A0A0A' : '#78756C',
+                    fontWeight: activeTab === tab ? 800 : 500,
+                    borderBottom: activeTab === tab ? `3px solid #1A1A1A` : '3px solid transparent',
                     transition: 'all 0.15s ease', marginBottom: -1, whiteSpace: 'nowrap', minHeight: 44,
                   }}
                 >
@@ -347,23 +348,23 @@ export default function CircuitDashboardPage() {
                     aria-labelledby="tab-gates"
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
                   >
-                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: N.textDim, letterSpacing: '0.12em', marginBottom: 20 }}>
+                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#78756C', letterSpacing: '0.12em', marginBottom: 20, fontWeight: 700 }}>
                       {totalGates} TOTAL GATES ACROSS {GATE_TYPES.length} TYPES
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                       {GATE_TYPES.map(type => {
                         const count = INITIAL_GATE_COUNTS[type];
                         const pct = (count / maxGateCount) * 100;
                         const color = GATE_COLORS[type];
                         return (
-                          <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <div aria-hidden="true" style={{ width: 32, height: 32, border: `1.5px solid ${color}`, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${color}10`, flexShrink: 0 }}>
-                              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: type.length > 2 ? 7 : 10, fontWeight: 700, color }}>{type}</span>
+                          <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                            <div aria-hidden="true" style={{ width: 34, height: 34, border: `1.5px solid #1A1A1A`, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F2EA', flexShrink: 0, boxShadow: '2px 2px 0px rgba(26,26,26,0.08)' }}>
+                              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: type.length > 2 ? 8 : 11, fontWeight: 800, color }}>{type}</span>
                             </div>
                             <div style={{ flex: 1 }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: N.textSoft }}>{type} Gate</span>
-                                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color, fontWeight: 700 }}>{count}×</span>
+                                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#0A0A0A', fontWeight: 600 }}>{type} Gate</span>
+                                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color, fontWeight: 800 }}>{count}×</span>
                               </div>
                               <div
                                 role="meter"
@@ -371,13 +372,13 @@ export default function CircuitDashboardPage() {
                                 aria-valuenow={count}
                                 aria-valuemin={0}
                                 aria-valuemax={maxGateCount}
-                                style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}
+                                style={{ height: 6, background: '#EAE7DF', borderRadius: 3, border: '1px solid #D8D4C7', overflow: 'hidden' }}
                               >
                                 <motion.div
                                   initial={{ width: 0 }}
                                   animate={{ width: `${pct}%` }}
                                   transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                                  style={{ height: '100%', background: color, borderRadius: 2, boxShadow: `0 0 6px ${color}60` }}
+                                  style={{ height: '100%', background: color, borderRadius: 2 }}
                                 />
                               </div>
                             </div>
@@ -396,30 +397,30 @@ export default function CircuitDashboardPage() {
                     aria-labelledby="tab-qubits"
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
                   >
-                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: N.textDim, letterSpacing: '0.12em', marginBottom: 20 }}>
+                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#78756C', letterSpacing: '0.12em', marginBottom: 20, fontWeight: 700 }}>
                       3 QUBITS — CURRENT SUPERPOSITION STATES
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                       {QUBIT_DATA.map(q => (
-                        <article key={q.label} aria-label={`Qubit ${q.label} in state ${q.state}`} style={{ background: `${q.color}06`, border: `1px solid ${q.color}25`, borderRadius: 12, padding: 'clamp(14px, 3vw, 18px) clamp(14px, 3vw, 20px)' }}>
+                        <article key={q.label} aria-label={`Qubit ${q.label} in state ${q.state}`} style={{ background: '#FDFBF7', border: `1.5px solid #1A1A1A`, borderRadius: 12, padding: 'clamp(14px, 3vw, 18px) clamp(14px, 3vw, 20px)', boxShadow: '3px 3px 0px rgba(26,26,26,0.06)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
                             <div>
-                              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 700, color: q.color }}>{q.label}</span>
-                              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: N.textDim, marginLeft: 10 }}>{q.state}</span>
+                              <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 22, fontWeight: 800, color: '#0A0A0A' }}>{q.label}</span>
+                              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#4A4740', marginLeft: 10, fontWeight: 600 }}>{q.state}</span>
                             </div>
-                            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: q.color, border: `1px solid ${q.color}40`, borderRadius: 4, padding: '2px 8px' }}>
+                            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: q.color, border: `1px solid ${q.color}`, borderRadius: 4, padding: '2px 8px', fontWeight: 700, background: '#FFFFFF' }}>
                               SUPERPOSITION
                             </div>
                           </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                             {[
                               { label: '|0⟩ probability', value: q.prob0 },
                               { label: '|1⟩ probability', value: 1 - q.prob0 },
                             ].map(bar => (
                               <div key={bar.label}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: N.textDim }}>{bar.label}</span>
-                                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: q.color, fontWeight: 700 }}>{(bar.value * 100).toFixed(0)}%</span>
+                                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#4A4740', fontWeight: 600 }}>{bar.label}</span>
+                                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#0A0A0A', fontWeight: 800 }}>{(bar.value * 100).toFixed(0)}%</span>
                                 </div>
                                 <div
                                   role="meter"
@@ -427,13 +428,13 @@ export default function CircuitDashboardPage() {
                                   aria-valuenow={Math.round(bar.value * 100)}
                                   aria-valuemin={0}
                                   aria-valuemax={100}
-                                  style={{ height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}
+                                  style={{ height: 8, background: '#EAE7DF', borderRadius: 4, border: '1px solid #D8D4C7', overflow: 'hidden' }}
                                 >
                                   <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${bar.value * 100}%` }}
                                     transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                                    style={{ height: '100%', background: q.color, borderRadius: 3, boxShadow: `0 0 8px ${q.color}60` }}
+                                    style={{ height: '100%', background: q.color, borderRadius: 3 }}
                                   />
                                 </div>
                               </div>
@@ -454,35 +455,36 @@ export default function CircuitDashboardPage() {
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
-                      <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: N.textDim, letterSpacing: '0.12em' }}>
+                      <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#78756C', letterSpacing: '0.12em', fontWeight: 700 }}>
                         COMPUTING TRACK — {archiveEvents.length} EVENTS
                       </div>
                       {bookmarkedEvents.size > 0 && (
-                        <span aria-live="polite" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: N.amber, border: `1px solid ${N.amber}40`, borderRadius: 999, padding: '2px 8px' }}>
+                        <span aria-live="polite" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: N.amber, border: `1px solid ${N.amber}`, background: '#FEF3C7', borderRadius: 999, padding: '3px 10px', fontWeight: 700 }}>
                           ★ {bookmarkedEvents.size} bookmarked
                         </span>
                       )}
                     </div>
-                    <ul role="list" aria-label="Archive events" style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 480, overflowY: 'auto', listStyle: 'none', padding: 0, margin: 0, WebkitOverflowScrolling: 'touch' }}>
+                    <ul role="list" aria-label="Archive events" style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 480, overflowY: 'auto', listStyle: 'none', padding: 0, margin: 0, WebkitOverflowScrolling: 'touch' }}>
                       {archiveEvents.map(event => (
                         <li
                           key={event.id}
                           style={{
-                            display: 'flex', alignItems: 'flex-start', gap: 10,
-                            padding: '10px 12px', borderRadius: 8,
-                            background: bookmarkedEvents.has(event.id) ? `${N.amber}08` : N.panel,
-                            border: `1px solid ${bookmarkedEvents.has(event.id) ? N.amber + '50' : N.panelBorder}`,
+                            display: 'flex', alignItems: 'flex-start', gap: 12,
+                            padding: '12px 14px', borderRadius: 10,
+                            background: bookmarkedEvents.has(event.id) ? '#FEF3C7' : '#FDFBF7',
+                            border: `1.5px solid ${bookmarkedEvents.has(event.id) ? N.amber : '#1A1A1A'}`,
+                            boxShadow: '2px 2px 0px rgba(26,26,26,0.04)',
                             transition: 'all 0.15s ease',
                           }}
                         >
-                          <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 15, fontWeight: 700, color: N.cyan, flexShrink: 0, width: 40, lineHeight: 1.3 }}>
+                          <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 17, fontWeight: 800, color: '#0A0A0A', flexShrink: 0, width: 44, lineHeight: 1.3 }}>
                             {event.year}
                           </span>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: N.textPrimary, fontWeight: 500, marginBottom: 2, lineHeight: 1.3 }}>
+                            <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#0A0A0A', fontWeight: 600, marginBottom: 2, lineHeight: 1.3 }}>
                               {event.title}
                             </div>
-                            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: N.textDim }}>
+                            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#4A4740' }}>
                               {event.people.slice(0, 2).join(', ')}
                             </div>
                           </div>
@@ -490,7 +492,7 @@ export default function CircuitDashboardPage() {
                             onClick={() => toggleBookmark(event.id)}
                             aria-label={bookmarkedEvents.has(event.id) ? `Remove bookmark for ${event.title}` : `Bookmark ${event.title}`}
                             aria-pressed={bookmarkedEvents.has(event.id)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: bookmarkedEvents.has(event.id) ? N.amber : N.textDim, flexShrink: 0, padding: '4px 6px', transition: 'color 0.15s ease', lineHeight: 1, minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: bookmarkedEvents.has(event.id) ? N.amber : '#78756C', flexShrink: 0, padding: '4px 6px', transition: 'color 0.15s ease', lineHeight: 1, minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           >
                             {bookmarkedEvents.has(event.id) ? '★' : '☆'}
                           </button>
@@ -512,13 +514,13 @@ export default function CircuitDashboardPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
               aria-label="Bookmarked events"
-              style={{ background: N.panel, border: `1px solid ${N.panelBorder}`, borderRadius: 14, padding: 'clamp(14px, 3vw, 20px)' }}
+              style={{ background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 16, padding: 'clamp(14px, 3vw, 20px)', boxShadow: '4px 4px 0px rgba(26,26,26,0.06)' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                <h2 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: N.textDim, margin: 0 }}>
+                <h2 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#78756C', margin: 0, fontWeight: 700 }}>
                   Bookmarked Events
                 </h2>
-                <span aria-live="polite" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: N.amber }}>
+                <span aria-live="polite" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: N.amber, fontWeight: 700 }}>
                   {bookmarkedEvents.size} / {archiveEvents.length}
                 </span>
               </div>
@@ -527,31 +529,31 @@ export default function CircuitDashboardPage() {
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: N.textDim, textAlign: 'center', padding: '20px 0', margin: 0 }}
+                    style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#78756C', textAlign: 'center', padding: '20px 0', margin: 0 }}
                   >
-                    <span aria-hidden="true" style={{ display: 'block', fontSize: 24, marginBottom: 8, opacity: 0.4 }}>☆</span>
+                    <span aria-hidden="true" style={{ display: 'block', fontSize: 24, marginBottom: 8, opacity: 0.5 }}>☆</span>
                     Bookmark events from the Archive tab
                   </motion.p>
                 ) : (
-                  <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: 6, listStyle: 'none', padding: 0, margin: 0 }} aria-label="Bookmarked events list">
+                  <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: 8, listStyle: 'none', padding: 0, margin: 0 }} aria-label="Bookmarked events list">
                     {QUANTUM_EVENTS.filter(e => bookmarkedEvents.has(e.id)).map(event => (
                       <motion.li
                         key={event.id}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 10 }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: `${N.amber}08`, border: `1px solid ${N.amber}30`, borderRadius: 8 }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#FEF3C7', border: `1px solid ${N.amber}`, borderRadius: 8 }}
                       >
-                        <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 13, fontWeight: 700, color: N.amber, flexShrink: 0, width: 36 }}>
+                        <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 14, fontWeight: 800, color: N.amber, flexShrink: 0, width: 38 }}>
                           {event.year}
                         </span>
-                        <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: N.textSoft, flex: 1, lineHeight: 1.3 }}>
+                        <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#0A0A0A', flex: 1, lineHeight: 1.3, fontWeight: 500 }}>
                           {event.title}
                         </span>
                         <button
                           onClick={() => toggleBookmark(event.id)}
                           aria-label={`Remove bookmark for ${event.title}`}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: N.amber, fontSize: 12, padding: 4, minHeight: 36, minWidth: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: N.amber, fontSize: 14, padding: 4, minHeight: 36, minWidth: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         >
                           ★
                         </button>
@@ -568,14 +570,13 @@ export default function CircuitDashboardPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
               aria-label="Export circuit"
-              style={{ background: N.panel, border: `1px solid ${N.panelBorder}`, borderRadius: 14, padding: 'clamp(14px, 3vw, 20px)', position: 'relative', overflow: 'hidden' }}
+              style={{ background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 16, padding: 'clamp(14px, 3vw, 20px)', position: 'relative', overflow: 'hidden', boxShadow: '4px 4px 0px rgba(26,26,26,0.06)' }}
             >
-              <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${N.cyan}60, transparent)` }} />
-              <h2 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: N.textDim, marginBottom: 12, marginTop: 0 }}>
-                Export Circuit
+              <h2 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#78756C', marginBottom: 10, marginTop: 0, fontWeight: 700 }}>
+                Export Circuit Blueprint
               </h2>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: N.textSoft, lineHeight: 1.6, marginBottom: 16, marginTop: 0 }}>
-                Export the full circuit diagram with gate layout, qubit wires, and measurement symbols as a high-resolution PNG image.
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#4A4740', lineHeight: 1.6, marginBottom: 16, marginTop: 0 }}>
+                Export the full circuit diagram with gate layout, qubit wires, and measurement symbols as a high-resolution PNG archival blueprint.
               </p>
               <button
                 onClick={exportCircuitImage}
@@ -585,11 +586,11 @@ export default function CircuitDashboardPage() {
                 style={{
                   width: '100%', padding: '12px', fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
                   letterSpacing: '0.1em', textTransform: 'uppercase',
-                  color: exportDone ? N.bg : N.bg,
-                  background: exportDone ? N.amber : exporting ? N.textDim : N.cyan,
-                  border: 'none', borderRadius: 8, cursor: exporting ? 'wait' : 'pointer',
+                  color: '#FFFFFF',
+                  background: exportDone ? N.amber : exporting ? '#78756C' : '#1A1A1A',
+                  border: '1.5px solid #1A1A1A', borderRadius: 8, cursor: exporting ? 'wait' : 'pointer',
                   fontWeight: 700, transition: 'all 0.2s ease',
-                  boxShadow: `0 0 16px ${exportDone ? N.amber : N.cyan}40`,
+                  boxShadow: `2px 2px 0px rgba(26,26,26,0.12)`,
                   minHeight: 44,
                 }}
               >
@@ -600,11 +601,12 @@ export default function CircuitDashboardPage() {
                   onClick={() => setView('machine-world')}
                   aria-label="Open Machine World circuit builder"
                   style={{
-                    flex: 1, padding: '10px', fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
-                    letterSpacing: '0.08em', textTransform: 'uppercase', color: N.cyan,
-                    background: 'transparent', border: `1px solid ${N.cyan}40`, borderRadius: 8,
+                    flex: 1, padding: '10px', fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+                    letterSpacing: '0.08em', textTransform: 'uppercase', color: '#0A0A0A',
+                    background: '#F5F2EA', border: `1.5px solid #1A1A1A`, borderRadius: 8,
                     cursor: 'pointer', textAlign: 'center', display: 'flex',
                     alignItems: 'center', justifyContent: 'center', minHeight: 44,
+                    fontWeight: 700,
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -619,12 +621,12 @@ export default function CircuitDashboardPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
               aria-label="Quick navigation"
-              style={{ background: N.panel, border: `1px solid ${N.panelBorder}`, borderRadius: 14, padding: 'clamp(12px, 3vw, 16px) clamp(14px, 3vw, 20px)' }}
+              style={{ background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 16, padding: 'clamp(12px, 3vw, 16px) clamp(14px, 3vw, 20px)', boxShadow: '4px 4px 0px rgba(26,26,26,0.06)' }}
             >
-              <h2 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: N.textDim, marginBottom: 12, marginTop: 0 }}>
+              <h2 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#78756C', marginBottom: 12, marginTop: 0, fontWeight: 700 }}>
                 Quick Navigation
               </h2>
-              <ul style={{ display: 'flex', flexDirection: 'column', gap: 6, listStyle: 'none', padding: 0, margin: 0 }}>
+              <ul style={{ display: 'flex', flexDirection: 'column', gap: 8, listStyle: 'none', padding: 0, margin: 0 }}>
                 {[
                   { viewName: 'machine-world', label: 'Machine World', sub: 'Interactive gate canvas', color: N.cyan },
                   { viewName: 'archive', label: 'Grand Quantum Museum', sub: '3D timeline building', color: N.violet },
@@ -636,17 +638,18 @@ export default function CircuitDashboardPage() {
                       onClick={() => setView(nav.viewName as any)}
                       aria-label={`${nav.label} — ${nav.sub}`}
                       style={{
-                        width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-                        background: 'transparent', border: `1px solid ${N.panelBorder}`, borderRadius: 8,
+                        width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
+                        background: '#FDFBF7', border: `1.5px solid #1A1A1A`, borderRadius: 8,
                         cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s ease', minHeight: 44,
+                        boxShadow: '2px 2px 0px rgba(26,26,26,0.04)',
                       }}
                     >
-                      <div aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: nav.color, boxShadow: `0 0 6px ${nav.color}`, flexShrink: 0 }} />
+                      <div aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: nav.color, flexShrink: 0 }} />
                       <div>
-                        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: nav.color, fontWeight: 700 }}>{nav.label}</div>
-                        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, color: N.textDim }}>{nav.sub}</div>
+                        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#0A0A0A', fontWeight: 800 }}>{nav.label}</div>
+                        <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#4A4740' }}>{nav.sub}</div>
                       </div>
-                      <span aria-hidden="true" style={{ marginLeft: 'auto', color: N.textDim, fontSize: 12 }}>→</span>
+                      <span aria-hidden="true" style={{ marginLeft: 'auto', color: '#1A1A1A', fontSize: 14, fontWeight: 700 }}>→</span>
                     </button>
                   </li>
                 ))}
@@ -655,18 +658,6 @@ export default function CircuitDashboardPage() {
           </div>
         </div>
       </main>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap');
-        .lg\\:grid-cols-\\[1fr_380px\\] {
-          grid-template-columns: 1fr;
-        }
-        @media (min-width: 1024px) {
-          .lg\\:grid-cols-\\[1fr_380px\\] {
-            grid-template-columns: 1fr 380px;
-          }
-        }
-      `}</style>
     </div>
   );
 }

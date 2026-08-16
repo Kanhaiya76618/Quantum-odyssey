@@ -3,39 +3,40 @@ import { motion, AnimatePresence, useReducedMotion, useMotionValue, useSpring } 
 import { useCircuitStore } from '../../store/circuitStore';
 import { QUANTUM_EVENTS, type QuantumEvent } from '../../content/quantum_timeline';
 
-// ─── Neon design tokens ───────────────────────────────────────────────────────
+// ─── Paper & Ink design tokens ───────────────────────────────────────────────
 const N = {
-  bg: '#050A14',
-  bg2: '#080F1E',
-  panel: 'rgba(0,255,209,0.04)',
-  panelBorder: 'rgba(0,255,209,0.18)',
-  cyan: '#00FFD1',
-  violet: '#9B5DE5',
-  pink: '#FF2D78',
-  amber: '#FFB800',
-  blue: '#3B82F6',
-  gridLine: 'rgba(0,255,209,0.07)',
-  textPrimary: '#E8F4F0',
-  textSoft: 'rgba(232,244,240,0.55)',
-  textDim: 'rgba(232,244,240,0.28)',
+  bg: '#FDFBF7',               // Warm Paper Background
+  bg2: '#F5F2EA',              // Secondary Drafting Paper
+  panel: '#FFFFFF',            // Crisp Manuscript Card
+  panelBorder: '#1A1A1A',      // High-contrast ink border
+  panelBorderSoft: '#D8D4C7',  // Soft drafting line
+  cyan: '#0F766E',             // Deep teal ink
+  violet: '#6D28D9',           // Rich violet ink
+  pink: '#BE123C',             // Deep crimson ink
+  amber: '#D97706',            // Warm amber / gold
+  blue: '#1D4ED8',             // Cobalt blueprint ink
+  gridLine: 'rgba(26,26,26,0.06)', // Engineering paper drafting grid
+  textPrimary: '#0A0A0A',      // Pure ink black
+  textSoft: '#4A4740',         // Soft ink text
+  textDim: '#78756C',          // Muted drafting annotations
 };
 
 // ─── Quantum gate data ────────────────────────────────────────────────────────
 const GATE_TYPES = ['H', 'X', 'Y', 'Z', 'CNOT', 'T', 'S', 'RZ', 'CX', 'SWAP'] as const;
 type GateType = typeof GATE_TYPES[number];
 
-// ─── Gate colors ──────────────────────────────────────────────────────────────
+// ─── Gate colors (Rich Ink Architectural Palette) ───────────────────────────
 const GATE_COLORS: Record<GateType, string> = {
-  H:    '#00FFD1',
-  X:    '#FF2D78',
-  Y:    '#9B5DE5',
-  Z:    '#3B82F6',
-  CNOT: '#FFB800',
-  T:    '#FF8C00',
-  S:    '#00FFD1',
-  RZ:   '#9B5DE5',
-  CX:   '#FFB800',
-  SWAP: '#FF2D78',
+  H:    '#0F766E',
+  X:    '#BE123C',
+  Y:    '#6D28D9',
+  Z:    '#1D4ED8',
+  CNOT: '#D97706',
+  T:    '#C2410C',
+  S:    '#0F766E',
+  RZ:   '#6D28D9',
+  CX:   '#D97706',
+  SWAP: '#BE123C',
 };
 
 // ─── Gate descriptions ────────────────────────────────────────────────────────
@@ -128,10 +129,10 @@ function computeCircuitMetrics(gates: Gate[], cols: number) {
 
 // ─── Fidelity color helper ────────────────────────────────────────────────────
 function fidelityColor(f: number): string {
-  if (f >= 0.95) return '#00FFD1'; // cyan — excellent
-  if (f >= 0.85) return '#FFB800'; // amber — good
-  if (f >= 0.70) return '#FF8C00'; // orange — fair
-  return '#FF2D78';                 // pink — poor
+  if (f >= 0.95) return '#059669'; // Emerald
+  if (f >= 0.85) return '#D97706'; // Amber
+  if (f >= 0.70) return '#EA580C'; // Orange
+  return '#DC2626';                 // Crimson
 }
 
 // ─── Initial circuit layout ───────────────────────────────────────────────────
@@ -167,30 +168,28 @@ const INITIAL_QUBITS: Qubit[] = [
   { id: 2, label: 'q₂', state: '|ψ⟩', probability: 0.31 },
 ];
 
-// ─── Bloch Sphere SVG ─────────────────────────────────────────────────────────
+// ─── Bloch Sphere SVG (Paper & Ink) ──────────────────────────────────────────
 function BlochSphere({ theta, phi, color }: { theta: number; phi: number; color: string }) {
   let cx = 60, cy = 60, r = 44;
   const stateX = cx + r * 0.7 * Math.sin(theta) * Math.cos(phi);
   const stateY = cy - r * 0.7 * Math.cos(theta);
   return (
-    <svg width={120} height={120} viewBox="0 0 120 120">
+    <svg width={120} height={120} viewBox="0 0 120 120" style={{ background: '#FDFBF7', borderRadius: 8, border: '1px solid #1A1A1A' }}>
       {/* Sphere outline */}
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={1} opacity={0.3} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#1A1A1A" strokeWidth={1.2} />
       {/* Equator ellipse */}
-      <ellipse cx={cx} cy={cy} rx={r} ry={r * 0.3} fill="none" stroke={color} strokeWidth={0.8} opacity={0.2} strokeDasharray="3 3" />
+      <ellipse cx={cx} cy={cy} rx={r} ry={r * 0.3} fill="none" stroke="#6B685F" strokeWidth={0.8} strokeDasharray="3 3" />
       {/* Meridian */}
-      <ellipse cx={cx} cy={cy} rx={r * 0.3} ry={r} fill="none" stroke={color} strokeWidth={0.8} opacity={0.2} strokeDasharray="3 3" />
+      <ellipse cx={cx} cy={cy} rx={r * 0.3} ry={r} fill="none" stroke="#6B685F" strokeWidth={0.8} strokeDasharray="3 3" />
       {/* Axes */}
-      <line x1={cx} y1={cy - r - 6} x2={cx} y2={cy + r + 6} stroke={color} strokeWidth={0.8} opacity={0.35} />
-      <line x1={cx - r - 6} y1={cy} x2={cx + r + 6} y2={cy} stroke={color} strokeWidth={0.8} opacity={0.35} />
+      <line x1={cx} y1={cy - r - 6} x2={cx} y2={cy + r + 6} stroke="#1A1A1A" strokeWidth={1} />
+      <line x1={cx - r - 6} y1={cy} x2={cx + r + 6} y2={cy} stroke="#1A1A1A" strokeWidth={1} />
       {/* Axis labels */}
-      <text x={cx + 2} y={cy - r - 8} fill={color} fontSize={8} opacity={0.6} fontFamily="JetBrains Mono, monospace">|0⟩</text>
-      <text x={cx + 2} y={cy + r + 16} fill={color} fontSize={8} opacity={0.6} fontFamily="JetBrains Mono, monospace">|1⟩</text>
+      <text x={cx + 2} y={cy - r - 8} fill="#0A0A0A" fontSize={8} fontWeight="bold" fontFamily="JetBrains Mono, monospace">|0⟩</text>
+      <text x={cx + 2} y={cy + r + 14} fill="#0A0A0A" fontSize={8} fontWeight="bold" fontFamily="JetBrains Mono, monospace">|1⟩</text>
       {/* State vector */}
-      <line x1={cx} y1={cy} x2={stateX} y2={stateY} stroke={color} strokeWidth={2} />
-      <circle cx={stateX} cy={stateY} r={4} fill={color} />
-      {/* Glow */}
-      <circle cx={stateX} cy={stateY} r={7} fill={color} opacity={0.2} />
+      <line x1={cx} y1={cy} x2={stateX} y2={stateY} stroke={color} strokeWidth={2.5} />
+      <circle cx={stateX} cy={stateY} r={4.5} fill={color} stroke="#1A1A1A" strokeWidth={1} />
     </svg>
   );
 }
@@ -199,16 +198,16 @@ function BlochSphere({ theta, phi, color }: { theta: number; phi: number; color:
 function ProbBar({ value, color, label }: { value: number; color: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: N.textDim, width: 20 }}>{label}</span>
-      <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
+      <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#4A4740', width: 20, fontWeight: 600 }}>{label}</span>
+      <div style={{ flex: 1, height: 6, background: '#EAE7DF', borderRadius: 3, border: '1px solid #D8D4C7', overflow: 'hidden' }}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${value * 100}%` }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          style={{ height: '100%', background: color, borderRadius: 2, boxShadow: `0 0 6px ${color}` }}
+          style={{ height: '100%', background: color, borderRadius: 2 }}
         />
       </div>
-      <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color, width: 36, textAlign: 'right' }}>
+      <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#0A0A0A', fontWeight: 700, width: 36, textAlign: 'right' }}>
         {(value * 100).toFixed(0)}%
       </span>
     </div>
@@ -238,22 +237,21 @@ function CircuitMetricsBar({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
       style={{
-        background: 'rgba(255,255,255,0.5)',
-        border: `1px solid ${runComplete ? fc + '80' : N.panelBorder}`,
+        background: '#FDFBF7',
+        border: `1.5px solid #1A1A1A`,
         borderRadius: 10,
-        padding: '12px 16px',
-        marginTop: 12,
-        transition: 'border-color 0.4s ease',
-        boxShadow: runComplete ? `0 0 16px ${fc}18` : 'none',
+        padding: '14px 18px',
+        marginTop: 14,
+        boxShadow: '3px 3px 0px rgba(26,26,26,0.06)',
       }}
     >
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: N.textDim }}>
+        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#4A4740', fontWeight: 700 }}>
           {runComplete ? '▶ Post-Run Analysis' : '◈ Live Circuit Metrics'}
         </span>
         {isRunning && (
-          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: N.amber, letterSpacing: '0.1em', animation: 'pulse-dot 1s ease infinite' }}>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: N.amber, fontWeight: 700, letterSpacing: '0.1em' }}>
             COMPUTING…
           </span>
         )}
@@ -261,7 +259,7 @@ function CircuitMetricsBar({
           <motion.span
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: fc, letterSpacing: '0.1em' }}
+            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: fc, fontWeight: 700, letterSpacing: '0.1em' }}
           >
             ✓ ANALYSIS COMPLETE
           </motion.span>
@@ -269,163 +267,86 @@ function CircuitMetricsBar({
       </div>
 
       {/* Metrics grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
         {/* Fidelity */}
-        <div style={{ background: `${fc}0A`, border: `1px solid ${fc}30`, borderRadius: 8, padding: '10px 12px' }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, letterSpacing: '0.12em', color: N.textDim, marginBottom: 4, textTransform: 'uppercase' }}>
+        <div style={{ background: '#FFFFFF', border: `1px solid #1A1A1A`, borderRadius: 8, padding: '10px 12px', boxShadow: '2px 2px 0px rgba(26,26,26,0.04)' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, letterSpacing: '0.12em', color: '#4A4740', marginBottom: 4, textTransform: 'uppercase', fontWeight: 600 }}>
             Circuit Fidelity
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 700, color: fc, lineHeight: 1 }}>
+          <div style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 20, fontWeight: 800, color: fc, lineHeight: 1 }}>
             {fidelityPct}%
           </div>
           {/* Fidelity bar */}
-          <div style={{ marginTop: 6, height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{ marginTop: 6, height: 4, background: '#EAE7DF', borderRadius: 2, overflow: 'hidden' }}>
             <motion.div
               animate={{ width: `${metrics.fidelity * 100}%` }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              style={{ height: '100%', background: fc, borderRadius: 2, boxShadow: `0 0 6px ${fc}` }}
+              style={{ height: '100%', background: fc, borderRadius: 2 }}
             />
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, color: N.textDim, marginTop: 4 }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, color: '#78756C', marginTop: 4 }}>
             {metrics.fidelity >= 0.95 ? 'Excellent' : metrics.fidelity >= 0.85 ? 'Good' : metrics.fidelity >= 0.70 ? 'Fair' : 'Poor'}
           </div>
         </div>
 
         {/* Gate Error Model */}
-        <div style={{ background: `${N.pink}0A`, border: `1px solid ${N.pink}30`, borderRadius: 8, padding: '10px 12px' }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, letterSpacing: '0.12em', color: N.textDim, marginBottom: 4, textTransform: 'uppercase' }}>
+        <div style={{ background: '#FFFFFF', border: `1px solid #1A1A1A`, borderRadius: 8, padding: '10px 12px', boxShadow: '2px 2px 0px rgba(26,26,26,0.04)' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, letterSpacing: '0.12em', color: '#4A4740', marginBottom: 4, textTransform: 'uppercase', fontWeight: 600 }}>
             Gate Error Model
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 700, color: N.pink, lineHeight: 1 }}>
+          <div style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 20, fontWeight: 800, color: N.pink, lineHeight: 1 }}>
             {errorPct}%
           </div>
-          <div style={{ marginTop: 6, height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{ marginTop: 6, height: 4, background: '#EAE7DF', borderRadius: 2, overflow: 'hidden' }}>
             <motion.div
               animate={{ width: `${Math.min(metrics.totalErrorRate * 100 * 5, 100)}%` }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              style={{ height: '100%', background: N.pink, borderRadius: 2, boxShadow: `0 0 6px ${N.pink}` }}
+              style={{ height: '100%', background: N.pink, borderRadius: 2 }}
             />
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, color: N.textDim, marginTop: 4 }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, color: '#78756C', marginTop: 4 }}>
             {gates.length} gates · {metrics.entanglingCount} entangling
           </div>
         </div>
 
         {/* Execution Depth */}
-        <div style={{ background: `${N.violet}0A`, border: `1px solid ${N.violet}30`, borderRadius: 8, padding: '10px 12px' }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, letterSpacing: '0.12em', color: N.textDim, marginBottom: 4, textTransform: 'uppercase' }}>
+        <div style={{ background: '#FFFFFF', border: `1px solid #1A1A1A`, borderRadius: 8, padding: '10px 12px', boxShadow: '2px 2px 0px rgba(26,26,26,0.04)' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, letterSpacing: '0.12em', color: '#4A4740', marginBottom: 4, textTransform: 'uppercase', fontWeight: 600 }}>
             Exec Depth
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 700, color: N.violet, lineHeight: 1 }}>
+          <div style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 20, fontWeight: 800, color: N.violet, lineHeight: 1 }}>
             {metrics.depth}
           </div>
-          <div style={{ marginTop: 6, height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{ marginTop: 6, height: 4, background: '#EAE7DF', borderRadius: 2, overflow: 'hidden' }}>
             <motion.div
               animate={{ width: `${Math.min((metrics.depth / 30) * 100, 100)}%` }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              style={{ height: '100%', background: N.violet, borderRadius: 2, boxShadow: `0 0 6px ${N.violet}` }}
+              style={{ height: '100%', background: N.violet, borderRadius: 2 }}
             />
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, color: N.textDim, marginTop: 4 }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, color: '#78756C', marginTop: 4 }}>
             {metrics.criticalPath} cols · {metrics.tGateCount} T/S gates
           </div>
         </div>
       </div>
-
-      {/* Per-gate error breakdown (shown post-run) */}
-      {runComplete && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          style={{ overflow: 'hidden', marginTop: 10 }}
-        >
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, letterSpacing: '0.12em', color: N.textDim, marginBottom: 6, textTransform: 'uppercase' }}>
-            Per-Gate Error Breakdown
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            {GATE_TYPES.map(type => {
-              const count = gates.filter(g => g.type === type).length;
-              if (count === 0) return null;
-              const err = GATE_ERROR_RATES[type];
-              const color = GATE_COLORS[type];
-              return (
-                <div
-                  key={type}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 5,
-                    background: `${color}0D`,
-                    border: `1px solid ${color}35`,
-                    borderRadius: 6,
-                    padding: '4px 8px',
-                  }}
-                >
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, color }}>{type}</span>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, color: N.textDim }}>×{count}</span>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, color: N.pink }}>{(err * 100).toFixed(2)}%</span>
-                </div>
-              );
-            })}
-          </div>
-          {/* Depth column chart */}
-          <div style={{ marginTop: 10 }}>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 8, letterSpacing: '0.12em', color: N.textDim, marginBottom: 6, textTransform: 'uppercase' }}>
-              Depth Per Column
-            </div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 28 }}>
-              {Array.from({ length: cols - 1 }, (_, col) => col + 1).map(col => {
-                const colGates = gates.filter(g => g.col === col);
-                const maxCost = colGates.length > 0 ? Math.max(...colGates.map(g => GATE_DEPTH_COST[g.type])) : 0;
-                const color = colGates.length > 0 ? GATE_COLORS[colGates[0].type] : N.panelBorder;
-                return (
-                  <div
-                    key={col}
-                    title={`Col ${col}: depth ${maxCost}`}
-                    style={{
-                      flex: 1,
-                      height: `${(maxCost / 3) * 100}%`,
-                      minHeight: maxCost > 0 ? 4 : 0,
-                      background: color,
-                      borderRadius: 2,
-                      opacity: maxCost > 0 ? 0.7 : 0.15,
-                      boxShadow: maxCost > 0 ? `0 0 4px ${color}60` : 'none',
-                      transition: 'all 0.3s ease',
-                    }}
-                  />
-                );
-              })}
-            </div>
-            <div style={{ display: 'flex', gap: 3, marginTop: 2 }}>
-              {Array.from({ length: cols - 1 }, (_, col) => col + 1).map(col => (
-                <div key={col} style={{ flex: 1, textAlign: 'center', fontFamily: 'JetBrains Mono, monospace', fontSize: 7, color: N.textDim, opacity: 0.5 }}>
-                  {col}
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      )}
     </motion.div>
   );
 }
 
-// ─── Gate SVG ─────────────────────────────────────────────────────────────────
+// ─── Gate SVG (Paper & Ink Stamp Block) ───────────────────────────────────────
 function GateSVG({ type, color, active }: { type: GateType; color: string; active: boolean }) {
-  const glow = active ? `0 0 12px ${color}, 0 0 24px ${color}40` : `0 0 6px ${color}60`;
   return (
     <div
       style={{
         width: 36,
         height: 36,
-        border: `1.5px solid ${color}`,
+        border: `1.5px solid #1A1A1A`,
         borderRadius: 6,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: active ? `${color}22` : `${color}0A`,
-        boxShadow: glow,
+        background: active ? '#FEF3C7' : '#FFFFFF',
+        boxShadow: active ? `0 0 0 2px ${color}` : `2px 2px 0px rgba(26,26,26,0.12)`,
         transition: 'all 0.2s ease',
         cursor: 'pointer',
         position: 'relative',
@@ -434,8 +355,8 @@ function GateSVG({ type, color, active }: { type: GateType; color: string; activ
       <span
         style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: type.length > 2 ? 7 : 10,
-          fontWeight: 700,
+          fontSize: type.length > 2 ? 8 : 11,
+          fontWeight: 800,
           color,
           letterSpacing: '-0.02em',
         }}
@@ -446,11 +367,10 @@ function GateSVG({ type, color, active }: { type: GateType; color: string; activ
         <div
           style={{
             position: 'absolute',
-            inset: -4,
+            inset: -3,
             borderRadius: 8,
-            border: `1px solid ${color}`,
-            opacity: 0.4,
-            animation: 'pulse-ring 1s ease infinite',
+            border: `1.5px solid ${color}`,
+            pointerEvents: 'none',
           }}
         />
       )}
@@ -458,7 +378,7 @@ function GateSVG({ type, color, active }: { type: GateType; color: string; activ
   );
 }
 
-// ─── Circuit Wire Row ─────────────────────────────────────────────────────────
+// ─── Circuit Wire Row (Paper & Ink Blueprint Wire) ───────────────────────────
 function CircuitRow({
   qubit,
   gates,
@@ -487,7 +407,7 @@ function CircuitRow({
           gap: 2,
         }}
       >
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: N.cyan, fontWeight: 700 }}>
+        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#0A0A0A', fontWeight: 800 }}>
           {qubit.label}
         </span>
         <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: N.textDim }}>
@@ -504,9 +424,8 @@ function CircuitRow({
             left: 0,
             right: 0,
             top: '50%',
-            height: 1,
-            background: `linear-gradient(90deg, ${N.cyan}60, ${N.cyan}20, ${N.cyan}60)`,
-            boxShadow: `0 0 4px ${N.cyan}40`,
+            height: 1.5,
+            background: '#1A1A1A',
           }}
         />
         {/* Active column pulse */}
@@ -535,9 +454,8 @@ function CircuitRow({
                     width: 8,
                     height: 8,
                     borderRadius: '50%',
-                    background: N.cyan,
-                    boxShadow: `0 0 8px ${N.cyan}`,
-                    opacity: 0.6,
+                    background: '#D97706',
+                    opacity: 0.8,
                   }}
                 />
               ) : null}
@@ -577,8 +495,8 @@ function CircuitRow({
   );
 }
 
-// ─── Neon Grid Background ─────────────────────────────────────────────────────
-function NeonGrid() {
+// ─── Paper Grid Background ───────────────────────────────────────────────────
+function PaperGrid() {
   return (
     <div
       style={{
@@ -587,10 +505,11 @@ function NeonGrid() {
         zIndex: 0,
         pointerEvents: 'none',
         backgroundImage: `
-          linear-gradient(${N.gridLine} 1px, transparent 1px),
-          linear-gradient(90deg, ${N.gridLine} 1px, transparent 1px)
+          linear-gradient(rgba(26,26,26,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(26,26,26,0.05) 1px, transparent 1px)
         `,
-        backgroundSize: '48px 48px',
+        backgroundSize: '36px 36px',
+        backgroundColor: '#FDFBF7',
       }}
     />
   );
@@ -1135,7 +1054,7 @@ function DownloadModal({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(43,43,43,0.45)',
+        background: 'rgba(26,26,26,0.45)',
         backdropFilter: 'blur(8px)',
         zIndex: 90,
         display: 'flex',
@@ -1152,11 +1071,11 @@ function DownloadModal({
         onClick={e => e.stopPropagation()}
         style={{
           width: 440,
-          background: 'rgba(242,240,234,0.98)',
-          border: `1px solid ${N.panelBorder}`,
-          borderRadius: 20,
+          background: '#FFFFFF',
+          border: `1.5px solid #1A1A1A`,
+          borderRadius: 16,
           padding: 32,
-          boxShadow: `0 32px 80px rgba(43,43,43,0.18)`,
+          boxShadow: `6px 6px 0px rgba(26,26,26,0.12)`,
         }}
       >
         {/* Header */}
@@ -1309,7 +1228,7 @@ function NoisePanel({ isOpen, onClose, config, onChange }: {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(43,43,43,0.45)', backdropFilter: 'blur(8px)', zIndex: 85, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 80, overflowY: 'auto' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(26,26,26,0.45)', backdropFilter: 'blur(8px)', zIndex: 85, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 80, overflowY: 'auto' }}
           onClick={onClose}
         >
           <motion.div
@@ -1318,7 +1237,7 @@ function NoisePanel({ isOpen, onClose, config, onChange }: {
             exit={{ opacity: 0, y: -12, scale: 0.96 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             onClick={e => e.stopPropagation()}
-            style={{ width: 520, background: 'rgba(242,240,234,0.98)', border: `1px solid ${N.panelBorder}`, borderRadius: 20, overflow: 'hidden', boxShadow: `0 32px 80px rgba(43,43,43,0.18)`, marginBottom: 40 }}
+            style={{ width: 520, background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 16, overflow: 'hidden', boxShadow: `6px 6px 0px rgba(26,26,26,0.12)`, marginBottom: 40 }}
           >
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: `1px solid ${N.panelBorder}`, background: `linear-gradient(135deg, rgba(255,45,120,0.06) 0%, transparent 60%)` }}>
@@ -1589,7 +1508,7 @@ function StepDebugger({ gates, isOpen, onClose, noiseConfig }: {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(43,43,43,0.45)', backdropFilter: 'blur(8px)', zIndex: 86, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 60, paddingBottom: 40, overflowY: 'auto' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(26,26,26,0.45)', backdropFilter: 'blur(8px)', zIndex: 86, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 60, paddingBottom: 40, overflowY: 'auto' }}
           onClick={onClose}
         >
           <motion.div
@@ -1598,7 +1517,7 @@ function StepDebugger({ gates, isOpen, onClose, noiseConfig }: {
             exit={{ opacity: 0, y: -12, scale: 0.96 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             onClick={e => e.stopPropagation()}
-            style={{ width: 700, background: 'rgba(242,240,234,0.98)', border: `1px solid ${N.panelBorder}`, borderRadius: 20, overflow: 'hidden', boxShadow: `0 32px 80px rgba(43,43,43,0.18)`, marginBottom: 40 }}
+            style={{ width: 700, background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 16, overflow: 'hidden', boxShadow: `6px 6px 0px rgba(26,26,26,0.12)`, marginBottom: 40 }}
           >
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: `1px solid ${N.panelBorder}`, background: `linear-gradient(135deg, rgba(0,255,209,0.05) 0%, transparent 60%)` }}>
@@ -2176,7 +2095,7 @@ function CircuitOptimizerPanel({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(43,43,43,0.45)',
+            background: 'rgba(26,26,26,0.45)',
             backdropFilter: 'blur(8px)',
             zIndex: 85,
             display: 'flex',
@@ -2196,11 +2115,11 @@ function CircuitOptimizerPanel({
             onClick={e => e.stopPropagation()}
             style={{
               width: 640,
-              background: 'rgba(242,240,234,0.98)',
-              border: `1px solid ${N.panelBorder}`,
-              borderRadius: 20,
+              background: '#FFFFFF',
+              border: `1.5px solid #1A1A1A`,
+              borderRadius: 16,
               overflow: 'hidden',
-              boxShadow: `0 32px 80px rgba(43,43,43,0.18)`,
+              boxShadow: `6px 6px 0px rgba(26,26,26,0.12)`,
             }}
           >
             {/* Header */}
@@ -2851,7 +2770,7 @@ function CircuitLibraryPanel({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(43,43,43,0.45)', backdropFilter: 'blur(8px)', zIndex: 87, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 60, paddingBottom: 40, overflowY: 'auto' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(26,26,26,0.45)', backdropFilter: 'blur(8px)', zIndex: 87, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 60, paddingBottom: 40, overflowY: 'auto' }}
           onClick={onClose}
         >
           <motion.div
@@ -2860,7 +2779,7 @@ function CircuitLibraryPanel({
             exit={{ opacity: 0, y: -12, scale: 0.96 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             onClick={e => e.stopPropagation()}
-            style={{ width: 680, background: 'rgba(242,240,234,0.98)', border: `1px solid ${N.panelBorder}`, borderRadius: 20, overflow: 'hidden', boxShadow: `0 32px 80px rgba(43,43,43,0.18)`, marginBottom: 40 }}
+            style={{ width: 680, background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 16, overflow: 'hidden', boxShadow: `6px 6px 0px rgba(26,26,26,0.12)`, marginBottom: 40 }}
           >
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: `1px solid ${N.panelBorder}`, background: `linear-gradient(135deg, rgba(0,255,209,0.05) 0%, transparent 60%)` }}>
@@ -3068,7 +2987,7 @@ function CircuitShareModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(43,43,43,0.45)', backdropFilter: 'blur(8px)', zIndex: 91, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(26,26,26,0.45)', backdropFilter: 'blur(8px)', zIndex: 91, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={onClose}
         >
           <motion.div
@@ -3077,7 +2996,7 @@ function CircuitShareModal({
             exit={{ opacity: 0, scale: 0.94, y: 8 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             onClick={e => e.stopPropagation()}
-            style={{ width: 520, background: 'rgba(242,240,234,0.98)', border: `1px solid ${N.panelBorder}`, borderRadius: 20, overflow: 'hidden', boxShadow: `0 32px 80px rgba(43,43,43,0.18)` }}
+            style={{ width: 520, background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 16, overflow: 'hidden', boxShadow: `6px 6px 0px rgba(26,26,26,0.12)` }}
           >
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: `1px solid ${N.panelBorder}`, background: `linear-gradient(135deg, rgba(155,93,229,0.06) 0%, transparent 60%)` }}>
@@ -3352,35 +3271,8 @@ export default function MachineWorldClient() {
         overflow: 'hidden',
       }}
     >
-      {/* Neon grid */}
-      <NeonGrid />
-
-      {/* Cursor glow */}
-      {!shouldReduceMotion && (
-        <motion.div
-          aria-hidden="true"
-          style={{
-            position: 'fixed',
-            left: springX,
-            top: springY,
-            width: 300,
-            height: 300,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${N.cyan}12 0%, transparent 70%)`,
-            pointerEvents: 'none',
-            zIndex: 1,
-          }}
-        />
-      )}
-
-      {/* Floating particles */}
-      {!shouldReduceMotion && (
-        <div aria-hidden="true" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
-          {particles.map((p, i) => (
-            <Particle key={i} {...p} />
-          ))}
-        </div>
-      )}
+      {/* Paper grid */}
+      <PaperGrid />
 
       {/* ── Header ── */}
       <motion.header
@@ -3397,10 +3289,10 @@ export default function MachineWorldClient() {
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: 8,
-          padding: '0 clamp(12px, 3vw, 32px)',
-          minHeight: 60,
-          borderBottom: `1px solid ${N.panelBorder}`,
-          background: 'rgba(242,240,234,0.82)',
+          padding: '0 clamp(16px, 3vw, 32px)',
+          minHeight: 64,
+          borderBottom: `1.5px solid #1A1A1A`,
+          background: 'rgba(253,251,247,0.94)',
           backdropFilter: 'blur(12px)',
         }}
       >
@@ -3409,24 +3301,19 @@ export default function MachineWorldClient() {
           <div
             aria-hidden="true"
             style={{
-              width: 28, height: 28, border: `1.5px solid ${N.cyan}`, borderRadius: 6,
+              width: 28, height: 28, border: `1.5px solid #1A1A1A`, borderRadius: 6,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: `0 0 10px ${N.cyan}40`, flexShrink: 0,
+              background: '#EAE7DF', flexShrink: 0,
             }}
           >
-            <svg width={14} height={14} viewBox="0 0 14 14" aria-hidden="true">
-              <circle cx={7} cy={7} r={2.5} fill={N.cyan} />
-              <circle cx={7} cy={7} r={5.5} fill="none" stroke={N.cyan} strokeWidth={0.8} opacity={0.5} />
-              <line x1={7} y1={1} x2={7} y2={13} stroke={N.cyan} strokeWidth={0.6} opacity={0.4} />
-              <line x1={1} y1={7} x2={13} y2={7} stroke={N.cyan} strokeWidth={0.6} opacity={0.4} />
-            </svg>
+            <span style={{ fontSize: 14, color: '#0A0A0A', fontWeight: 800 }}>◈</span>
           </div>
           <span
             style={{
               fontFamily: 'Fraunces, Georgia, serif',
-              fontSize: 'clamp(13px, 2.5vw, 16px)',
-              fontWeight: 700,
-              color: N.textPrimary,
+              fontSize: 'clamp(14px, 2.5vw, 17px)',
+              fontWeight: 800,
+              color: '#0A0A0A',
               letterSpacing: '-0.01em',
             }}
           >
@@ -3437,11 +3324,13 @@ export default function MachineWorldClient() {
             style={{
               fontFamily: 'JetBrains Mono, monospace',
               fontSize: 10,
-              color: N.cyan,
-              border: `1px solid ${N.cyan}40`,
+              color: '#0A0A0A',
+              background: '#F5F2EA',
+              border: `1px solid #1A1A1A`,
               borderRadius: 4,
               padding: '2px 6px',
               letterSpacing: '0.1em',
+              fontWeight: 700,
             }}
           >
             THE MACHINE
@@ -3449,16 +3338,16 @@ export default function MachineWorldClient() {
         </div>
 
         {/* Nav */}
-        <nav aria-label="Machine World navigation" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+        <nav aria-label="Machine World navigation" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <button
             onClick={() => setView('circuit-dashboard')}
             aria-label="Go to Circuit Dashboard"
             style={{
               fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: N.textSoft, background: 'transparent',
-              border: `1px solid ${N.panelBorder}`, borderRadius: 999,
-              padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6,
-              cursor: 'pointer', transition: 'all 0.15s ease', minHeight: 36,
+              textTransform: 'uppercase', color: '#1A1A1A', background: '#EAE7DF',
+              border: `1.5px solid #1A1A1A`, borderRadius: 999,
+              padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 6,
+              cursor: 'pointer', transition: 'all 0.15s ease', minHeight: 36, fontWeight: 600,
             }}
           >
             Dashboard
@@ -3468,9 +3357,9 @@ export default function MachineWorldClient() {
             aria-label="Go to Grand Quantum Museum"
             style={{
               fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: N.textSoft, background: 'transparent',
-              border: 'none', transition: 'color 0.15s', padding: '6px 4px', minHeight: 36,
-              cursor: 'pointer', display: 'flex', alignItems: 'center',
+              textTransform: 'uppercase', color: '#4A4740', background: 'transparent',
+              border: 'none', transition: 'color 0.15s', padding: '6px 6px', minHeight: 36,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 600,
             }}
           >
             Grand Quantum Museum
@@ -3480,10 +3369,10 @@ export default function MachineWorldClient() {
             aria-label="Go to Fintech Compass"
             style={{
               fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: N.cyan, background: 'transparent',
-              border: `1px solid ${N.cyan}50`, borderRadius: 999,
-              padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6,
-              cursor: 'pointer', transition: 'all 0.15s ease', minHeight: 36,
+              textTransform: 'uppercase', color: '#0A0A0A', background: '#FEF3C7',
+              border: `1.5px solid #D97706`, borderRadius: 999,
+              padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 6,
+              cursor: 'pointer', transition: 'all 0.15s ease', minHeight: 36, fontWeight: 700,
             }}
           >
             Fintech Compass ⚡
@@ -3496,7 +3385,7 @@ export default function MachineWorldClient() {
             aria-label="Undo last gate change"
             aria-disabled={!canUndo}
             title="Undo (⌘Z)"
-            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: canUndo ? N.textSoft : N.textDim, background: 'none', border: `1px solid ${canUndo ? N.panelBorder : 'transparent'}`, borderRadius: 6, padding: '6px 8px', cursor: canUndo ? 'pointer' : 'not-allowed', opacity: canUndo ? 1 : 0.4, transition: 'all 0.15s', minHeight: 36, minWidth: 36 }}
+            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: canUndo ? '#0A0A0A' : '#A8A29E', background: '#F5F2EA', border: `1px solid ${canUndo ? '#1A1A1A' : '#D8D4C7'}`, borderRadius: 6, padding: '6px 10px', cursor: canUndo ? 'pointer' : 'not-allowed', opacity: canUndo ? 1 : 0.4, transition: 'all 0.15s', minHeight: 36, minWidth: 36 }}
           >↩</button>
           <button
             onClick={redo}
@@ -3504,89 +3393,58 @@ export default function MachineWorldClient() {
             aria-label="Redo gate change"
             aria-disabled={!canRedo}
             title="Redo (⌘⇧Z)"
-            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: canRedo ? N.textSoft : N.textDim, background: 'none', border: `1px solid ${canRedo ? N.panelBorder : 'transparent'}`, borderRadius: 6, padding: '6px 8px', cursor: canRedo ? 'pointer' : 'not-allowed', opacity: canRedo ? 1 : 0.4, transition: 'all 0.15s', minHeight: 36, minWidth: 36 }}
+            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: canRedo ? '#0A0A0A' : '#A8A29E', background: '#F5F2EA', border: `1px solid ${canRedo ? '#1A1A1A' : '#D8D4C7'}`, borderRadius: 6, padding: '6px 10px', cursor: canRedo ? 'pointer' : 'not-allowed', opacity: canRedo ? 1 : 0.4, transition: 'all 0.15s', minHeight: 36, minWidth: 36 }}
           >↪</button>
 
           {/* Library */}
           <button
             onClick={() => setShowLibrary(true)}
             aria-label="Open circuit library (Cmd+L)"
-            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em', color: N.textSoft, background: 'none', border: `1px solid ${N.panelBorder}`, borderRadius: 999, padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s', minHeight: 36 }}
+            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em', color: '#0A0A0A', background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 999, padding: '6px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s', minHeight: 36, fontWeight: 600 }}
           >
-            <span aria-hidden="true">◧</span><span>LIBRARY</span><kbd aria-hidden="true" style={{ fontSize: 9, opacity: 0.7, background: 'rgba(0,0,0,0.2)', borderRadius: 3, padding: '1px 4px' }}>⌘L</kbd>
-          </button>
-
-          {/* Share */}
-          <button
-            onClick={() => setShowShare(true)}
-            aria-label="Share circuit"
-            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em', color: N.violet, background: `${N.violet}10`, border: `1.5px solid ${N.violet}50`, borderRadius: 999, padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s', minHeight: 36 }}
-          >
-            <span aria-hidden="true">⟳</span><span>SHARE</span>
+            <span aria-hidden="true">◧</span><span>LIBRARY</span><kbd aria-hidden="true" style={{ fontSize: 9, opacity: 0.7, background: '#EAE7DF', borderRadius: 3, padding: '1px 4px' }}>⌘L</kbd>
           </button>
 
           {/* Debugger */}
           <button
             onClick={() => setShowDebugger(true)}
             aria-label="Open step debugger (Cmd+B)"
-            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em', color: N.cyan, background: `${N.cyan}10`, border: `1.5px solid ${N.cyan}50`, borderRadius: 999, padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s', minHeight: 36 }}
+            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em', color: '#0A0A0A', background: '#FFFFFF', border: `1.5px solid #1A1A1A`, borderRadius: 999, padding: '6px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s', minHeight: 36, fontWeight: 600 }}
           >
-            <span aria-hidden="true">▶▶</span><span>DEBUG</span><kbd aria-hidden="true" style={{ fontSize: 9, opacity: 0.7, background: 'rgba(0,0,0,0.2)', borderRadius: 3, padding: '1px 4px' }}>⌘B</kbd>
+            <span aria-hidden="true">▶▶</span><span>DEBUG</span><kbd aria-hidden="true" style={{ fontSize: 9, opacity: 0.7, background: '#EAE7DF', borderRadius: 3, padding: '1px 4px' }}>⌘B</kbd>
           </button>
 
-          {/* Noise */}
-          <button
-            onClick={() => setShowNoise(true)}
-            aria-label={`Noise simulation — ${noiseConfig.enabled ? 'active: ' + noiseConfig.model : 'disabled'} (Cmd+N)`}
-            aria-pressed={noiseConfig.enabled}
-            style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em', color: noiseConfig.enabled ? N.pink : N.textSoft, background: noiseConfig.enabled ? `${N.pink}15` : 'none', border: `1.5px solid ${noiseConfig.enabled ? N.pink : N.panelBorder}`, borderRadius: 999, padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, boxShadow: noiseConfig.enabled ? `0 0 8px ${N.pink}30` : 'none', transition: 'all 0.15s', minHeight: 36 }}
-          >
-            <span aria-hidden="true">⚡</span><span>NOISE</span><kbd aria-hidden="true" style={{ fontSize: 9, opacity: 0.7, background: 'rgba(0,0,0,0.2)', borderRadius: 3, padding: '1px 4px' }}>⌘N</kbd>
-          </button>
-
+          {/* Optimizer */}
           <button
             onClick={() => setShowOptimizer(true)}
             aria-label="Open circuit optimizer (Cmd+O)"
             style={{
               fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em',
-              color: N.violet, background: `${N.violet}12`, border: `1.5px solid ${N.violet}60`,
+              color: '#0A0A0A', background: '#FFFFFF', border: `1.5px solid #1A1A1A`,
               borderRadius: 999, padding: '6px 14px', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6,
-              boxShadow: `0 0 10px ${N.violet}20`, transition: 'all 0.15s ease', minHeight: 36,
+              display: 'flex', alignItems: 'center', gap: 6, minHeight: 36, fontWeight: 600,
             }}
           >
             <span aria-hidden="true">◈</span>
             <span>OPTIMIZE</span>
-            <kbd aria-hidden="true" style={{ fontSize: 9, opacity: 0.7, background: 'rgba(0,0,0,0.2)', borderRadius: 3, padding: '1px 4px' }}>⌘O</kbd>
+            <kbd aria-hidden="true" style={{ fontSize: 9, opacity: 0.7, background: '#EAE7DF', borderRadius: 3, padding: '1px 4px' }}>⌘O</kbd>
           </button>
+
+          {/* Download */}
           <button
             onClick={() => setShowDownload(true)}
             aria-label="Download circuit (Cmd+D)"
             style={{
               fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em',
-              color: N.bg, background: N.cyan, border: `1.5px solid ${N.cyan}`,
-              borderRadius: 999, padding: '6px 14px', cursor: 'pointer',
+              color: '#FFFFFF', background: '#1A1A1A', border: `1.5px solid #1A1A1A`,
+              borderRadius: 999, padding: '6px 16px', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 6,
-              boxShadow: `0 0 12px ${N.cyan}40`, fontWeight: 700, minHeight: 36,
+              boxShadow: `2px 2px 0px rgba(26,26,26,0.12)`, fontWeight: 700, minHeight: 36,
             }}
           >
             <span aria-hidden="true">↓</span>
             <span>DOWNLOAD</span>
-            <kbd aria-hidden="true" style={{ fontSize: 9, opacity: 0.7, background: 'rgba(0,0,0,0.2)', borderRadius: 3, padding: '1px 4px' }}>⌘D</kbd>
-          </button>
-          <button
-            onClick={() => setShowEventSearch(v => !v)}
-            aria-label="Search quantum events (Cmd+K)"
-            aria-expanded={showEventSearch}
-            style={{
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.08em',
-              color: N.textSoft, background: 'none', border: `1px solid ${N.panelBorder}`,
-              borderRadius: 999, padding: '6px 12px', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6, minHeight: 36,
-            }}
-          >
-            <span>SEARCH</span>
-            <kbd aria-hidden="true" style={{ fontSize: 10, opacity: 0.6 }}>⌘K</kbd>
+            <kbd aria-hidden="true" style={{ fontSize: 9, opacity: 0.7, background: 'rgba(255,255,255,0.2)', borderRadius: 3, padding: '1px 4px' }}>⌘D</kbd>
           </button>
         </nav>
       </motion.header>
@@ -3600,7 +3458,7 @@ export default function MachineWorldClient() {
           gridTemplateColumns: 'minmax(0, 1fr)',
           gridTemplateRows: 'auto 1fr',
           gap: 0,
-          minHeight: 'calc(100vh - 60px)',
+          minHeight: 'calc(100vh - 64px)',
         }}
         className="lg-machine-grid"
       >
@@ -3619,9 +3477,9 @@ export default function MachineWorldClient() {
                 fontSize: 10,
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
-                color: N.cyan,
+                color: '#78756C',
                 marginBottom: 8,
-                opacity: 0.7,
+                fontWeight: 700,
               }}
             >
               Live Quantum Circuit Interface
@@ -3629,32 +3487,24 @@ export default function MachineWorldClient() {
             <h1
               style={{
                 fontFamily: 'Fraunces, Georgia, serif',
-                fontSize: 'clamp(1.8rem, 3.5vw, 3rem)',
-                fontWeight: 700,
-                color: N.textPrimary,
+                fontSize: 'clamp(2rem, 3.8vw, 3.2rem)',
+                fontWeight: 800,
+                color: '#0A0A0A',
                 lineHeight: 1.05,
                 margin: 0,
                 letterSpacing: '-0.02em',
               }}
             >
-              The{' '}
-              <span
-                style={{
-                  color: N.cyan,
-                  textShadow: `0 0 20px ${N.cyan}60, 0 0 40px ${N.cyan}30`,
-                }}
-              >
-                Machine
-              </span>
+              The Machine
             </h1>
             <p
               style={{
                 fontFamily: 'DM Sans, sans-serif',
-                fontSize: 14,
-                color: N.textSoft,
-                marginTop: 8,
+                fontSize: 15,
+                color: '#4A4740',
+                marginTop: 10,
                 lineHeight: 1.6,
-                maxWidth: 520,
+                maxWidth: 560,
               }}
             >
               History ends. Computation begins. Interact with a live quantum circuit — place gates, run the algorithm, observe superposition collapse.
@@ -3668,11 +3518,11 @@ export default function MachineWorldClient() {
             transition={{ duration: 0.5, delay: 0.25 }}
             aria-label="Quantum circuit board"
             style={{
-              background: N.panel,
-              border: `1px solid ${N.panelBorder}`,
+              background: '#FFFFFF',
+              border: `1.5px solid #1A1A1A`,
               borderRadius: 16,
-              padding: 'clamp(14px, 3vw, 24px) clamp(12px, 3vw, 20px)',
-              boxShadow: `0 0 40px rgba(0,255,209,0.04), inset 0 1px 0 rgba(0,255,209,0.08)`,
+              padding: 'clamp(16px, 3vw, 24px)',
+              boxShadow: `4px 4px 0px rgba(26,26,26,0.08)`,
               overflowX: 'auto',
               WebkitOverflowScrolling: 'touch',
             }}
@@ -3690,11 +3540,11 @@ export default function MachineWorldClient() {
               <span
                 style={{
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: 10,
+                  fontSize: 11,
                   letterSpacing: '0.14em',
                   textTransform: 'uppercase',
-                  color: N.cyan,
-                  opacity: 0.7,
+                  color: '#0A0A0A',
+                  fontWeight: 700,
                 }}
               >
                 Quantum Circuit — 3 Qubits · {COLS - 1} Columns
@@ -3710,9 +3560,10 @@ export default function MachineWorldClient() {
                       aria-live="polite"
                       style={{
                         fontFamily: 'JetBrains Mono, monospace',
-                        fontSize: 10,
-                        color: N.cyan,
+                        fontSize: 11,
+                        color: '#059669',
                         letterSpacing: '0.1em',
+                        fontWeight: 700,
                       }}
                     >
                       ✓ COMPLETE
@@ -3726,10 +3577,10 @@ export default function MachineWorldClient() {
                   aria-pressed={showHistogram}
                   style={{
                     fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.08em',
-                    color: showHistogram ? N.bg : N.amber, background: showHistogram ? N.amber : `${N.amber}10`,
-                    border: `1px solid ${N.amber}50`, borderRadius: 6, padding: '5px 10px',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
-                    transition: 'all 0.15s ease', minHeight: 36,
+                    color: showHistogram ? '#FFFFFF' : '#0A0A0A', background: showHistogram ? '#1A1A1A' : '#F5F2EA',
+                    border: `1.5px solid #1A1A1A`, borderRadius: 6, padding: '6px 12px',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+                    fontWeight: 600, transition: 'all 0.15s ease', minHeight: 36,
                   }}
                 >
                   <span aria-hidden="true">▦</span> Histogram
@@ -3740,10 +3591,10 @@ export default function MachineWorldClient() {
                   aria-label="Export circuit as PNG or SVG"
                   style={{
                     fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.08em',
-                    color: N.cyan, background: 'transparent', border: `1px solid ${N.cyan}50`,
-                    borderRadius: 6, padding: '5px 10px', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 4,
-                    transition: 'all 0.15s ease', minHeight: 36,
+                    color: '#0A0A0A', background: '#F5F2EA', border: `1.5px solid #1A1A1A`,
+                    borderRadius: 6, padding: '6px 12px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    fontWeight: 600, transition: 'all 0.15s ease', minHeight: 36,
                   }}
                 >
                   <span aria-hidden="true">↓</span> Export
@@ -3756,12 +3607,13 @@ export default function MachineWorldClient() {
                   style={{
                     fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.1em',
                     textTransform: 'uppercase',
-                    color: isRunning ? N.textDim : N.bg,
-                    background: isRunning ? 'transparent' : N.cyan,
-                    border: `1.5px solid ${isRunning ? N.textDim : N.cyan}`,
-                    borderRadius: 6, padding: '6px 16px',
+                    color: '#FFFFFF',
+                    background: isRunning ? '#78756C' : '#1A1A1A',
+                    border: `1.5px solid #1A1A1A`,
+                    borderRadius: 999, padding: '7px 18px',
                     cursor: isRunning ? 'not-allowed' : 'pointer',
-                    boxShadow: isRunning ? 'none' : `0 0 12px ${N.cyan}40`,
+                    boxShadow: isRunning ? 'none' : `2px 2px 0px rgba(26,26,26,0.12)`,
+                    fontWeight: 700,
                     transition: 'all 0.2s ease', minHeight: 36,
                   }}
                 >
@@ -3938,12 +3790,12 @@ export default function MachineWorldClient() {
         <aside
           aria-label="Qubit states and archive events"
           style={{
-            borderLeft: `1px solid ${N.panelBorder}`,
+            borderLeft: `1.5px solid #1A1A1A`,
             padding: 'clamp(16px, 3vw, 32px) clamp(12px, 2vw, 20px)',
             display: 'flex',
             flexDirection: 'column',
             gap: 20,
-            background: 'rgba(255,255,255,0.35)',
+            background: '#F5F2EA',
           }}
         >
           {/* Bloch spheres */}
@@ -3956,17 +3808,18 @@ export default function MachineWorldClient() {
             <h2
               style={{
                 fontFamily: 'JetBrains Mono, monospace',
-                fontSize: 9,
+                fontSize: 10,
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
-                color: N.textDim,
+                color: '#78756C',
                 marginBottom: 12,
                 marginTop: 0,
+                fontWeight: 700,
               }}
             >
               Bloch Sphere States
             </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {qubits.map((q, i) => {
                 const colors = [N.cyan, N.violet, N.pink];
                 return (
@@ -3976,11 +3829,12 @@ export default function MachineWorldClient() {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 8,
-                      background: N.panel,
-                      border: `1px solid ${N.panelBorder}`,
-                      borderRadius: 10,
-                      padding: '8px 12px',
+                      gap: 12,
+                      background: '#FFFFFF',
+                      border: `1.5px solid #1A1A1A`,
+                      borderRadius: 12,
+                      padding: '10px 14px',
+                      boxShadow: '2px 2px 0px rgba(26,26,26,0.06)',
                     }}
                   >
                     <div aria-hidden="true">
@@ -3993,14 +3847,14 @@ export default function MachineWorldClient() {
                     <div style={{ flex: 1 }}>
                       <div
                         style={{
-                          fontFamily: 'JetBrains Mono, monospace',
-                          fontSize: 12,
-                          color: colors[i],
-                          fontWeight: 700,
+                          fontFamily: 'Fraunces, Georgia, serif',
+                          fontSize: 15,
+                          color: '#0A0A0A',
+                          fontWeight: 800,
                           marginBottom: 4,
                         }}
                       >
-                        {q.label} — {q.state}
+                        {q.label} — <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: colors[i] }}>{q.state}</span>
                       </div>
                       <ProbBar value={q.probability} color={colors[i]} label="|0⟩" />
                       <div style={{ marginTop: 4 }}>
@@ -4031,11 +3885,12 @@ export default function MachineWorldClient() {
               <h2
                 style={{
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: 9,
+                  fontSize: 10,
                   letterSpacing: '0.14em',
                   textTransform: 'uppercase',
-                  color: N.textDim,
+                  color: '#78756C',
                   margin: 0,
+                  fontWeight: 700,
                 }}
               >
                 From the Archive
@@ -4045,31 +3900,33 @@ export default function MachineWorldClient() {
                   aria-live="polite"
                   style={{
                     fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: 9,
+                    fontSize: 10,
                     color: N.amber,
-                    border: `1px solid ${N.amber}40`,
+                    border: `1px solid ${N.amber}`,
+                    background: '#FEF3C7',
                     borderRadius: 999,
-                    padding: '1px 7px',
+                    padding: '2px 8px',
+                    fontWeight: 700,
                   }}
                 >
                   {bookmarkedEvents.size} saved
                 </span>
               )}
             </div>
-            <ul role="list" aria-label="Quantum computing events" style={{ display: 'flex', flexDirection: 'column', gap: 6, listStyle: 'none', padding: 0, margin: 0 }}>
+            <ul role="list" aria-label="Quantum computing events" style={{ display: 'flex', flexDirection: 'column', gap: 8, listStyle: 'none', padding: 0, margin: 0 }}>
               {QUANTUM_EVENTS.filter(e => e.track === 'computing').slice(0, 5).map(event => (
                 <li
                   key={event.id}
                   style={{
-                    background: N.panel,
-                    border: `1px solid ${bookmarkedEvents.has(event.id) ? N.amber + '60' : N.panelBorder}`,
-                    borderRadius: 8,
+                    background: bookmarkedEvents.has(event.id) ? '#FEF3C7' : '#FFFFFF',
+                    border: `1.5px solid ${bookmarkedEvents.has(event.id) ? N.amber : '#1A1A1A'}`,
+                    borderRadius: 10,
                     padding: '10px 12px',
                     display: 'flex',
                     alignItems: 'flex-start',
                     gap: 8,
                     transition: 'all 0.15s ease',
-                    boxShadow: bookmarkedEvents.has(event.id) ? `0 0 8px ${N.amber}20` : 'none',
+                    boxShadow: '2px 2px 0px rgba(26,26,26,0.04)',
                   }}
                 >
                   <button
@@ -4092,8 +3949,8 @@ export default function MachineWorldClient() {
                       style={{
                         fontFamily: 'Fraunces, Georgia, serif',
                         fontSize: 16,
-                        fontWeight: 700,
-                        color: N.cyan,
+                        fontWeight: 800,
+                        color: '#0A0A0A',
                         lineHeight: 1,
                         flexShrink: 0,
                         width: 40,
@@ -4105,8 +3962,9 @@ export default function MachineWorldClient() {
                       style={{
                         fontFamily: 'DM Sans, sans-serif',
                         fontSize: 12,
-                        color: N.textSoft,
+                        color: '#4A4740',
                         lineHeight: 1.4,
+                        fontWeight: 500,
                       }}
                     >
                       {event.title}
@@ -4121,8 +3979,8 @@ export default function MachineWorldClient() {
                       border: 'none',
                       cursor: 'pointer',
                       padding: '4px 6px',
-                      fontSize: 14,
-                      color: bookmarkedEvents.has(event.id) ? N.amber : N.textDim,
+                      fontSize: 16,
+                      color: bookmarkedEvents.has(event.id) ? N.amber : '#78756C',
                       flexShrink: 0,
                       transition: 'color 0.15s ease',
                       lineHeight: 1,
@@ -4151,17 +4009,17 @@ export default function MachineWorldClient() {
                   <div
                     style={{
                       fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: 9,
+                      fontSize: 10,
                       letterSpacing: '0.14em',
                       textTransform: 'uppercase',
                       color: N.amber,
                       marginBottom: 8,
-                      opacity: 0.8,
+                      fontWeight: 700,
                     }}
                   >
                     ★ Bookmarked
                   </div>
-                  <ul style={{ display: 'flex', flexDirection: 'column', gap: 4, listStyle: 'none', padding: 0, margin: 0 }}>
+                  <ul style={{ display: 'flex', flexDirection: 'column', gap: 6, listStyle: 'none', padding: 0, margin: 0 }}>
                     {QUANTUM_EVENTS.filter(e => bookmarkedEvents.has(e.id)).map(event => (
                       <li key={event.id}>
                         <button
@@ -4169,9 +4027,9 @@ export default function MachineWorldClient() {
                           aria-label={`View bookmarked event: ${event.year} — ${event.title}`}
                           style={{
                             width: '100%',
-                            background: `${N.amber}08`,
-                            border: `1px solid ${N.amber}40`,
-                            borderRadius: 6,
+                            background: '#FEF3C7',
+                            border: `1.5px solid ${N.amber}`,
+                            borderRadius: 8,
                             padding: '8px 10px',
                             cursor: 'pointer',
                             textAlign: 'left',
@@ -4182,10 +4040,10 @@ export default function MachineWorldClient() {
                             minHeight: 44,
                           }}
                         >
-                          <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 13, fontWeight: 700, color: N.amber, flexShrink: 0, width: 36 }}>
+                          <span style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 13, fontWeight: 800, color: N.amber, flexShrink: 0, width: 36 }}>
                             {event.year}
                           </span>
-                          <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: N.textSoft, lineHeight: 1.3 }}>
+                          <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#0A0A0A', lineHeight: 1.3 }}>
                             {event.title}
                           </span>
                         </button>
@@ -4204,21 +4062,23 @@ export default function MachineWorldClient() {
             transition={{ duration: 0.5, delay: 0.55 }}
             aria-label="System status"
             style={{
-              background: N.panel,
-              border: `1px solid ${N.panelBorder}`,
-              borderRadius: 10,
+              background: '#FFFFFF',
+              border: `1.5px solid #1A1A1A`,
+              borderRadius: 12,
               padding: '14px 16px',
+              boxShadow: '2px 2px 0px rgba(26,26,26,0.06)',
             }}
           >
             <h2
               style={{
                 fontFamily: 'JetBrains Mono, monospace',
-                fontSize: 9,
+                fontSize: 10,
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
-                color: N.textDim,
+                color: '#78756C',
                 marginBottom: 10,
                 marginTop: 0,
+                fontWeight: 700,
               }}
             >
               System Status
@@ -4226,7 +4086,7 @@ export default function MachineWorldClient() {
             <dl style={{ margin: 0 }}>
               {[
                 { label: 'Coherence', value: '99.2%', color: N.cyan },
-                { label: 'Gate Fidelity', value: '99.8%', color: N.violet },
+                { label: 'Gate Fidelity', value: '99.8%', color: '#059669' },
                 { label: 'Error Rate', value: '0.12%', color: N.pink },
                 { label: 'T1 Time', value: '127 μs', color: N.amber },
               ].map(({ label, value, color }) => (
@@ -4242,8 +4102,9 @@ export default function MachineWorldClient() {
                   <dt
                     style={{
                       fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: 10,
-                      color: N.textDim,
+                      fontSize: 11,
+                      color: '#4A4740',
+                      fontWeight: 500,
                     }}
                   >
                     {label}
@@ -4251,9 +4112,9 @@ export default function MachineWorldClient() {
                   <dd
                     style={{
                       fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: 11,
+                      fontSize: 12,
                       color,
-                      fontWeight: 700,
+                      fontWeight: 800,
                       margin: 0,
                     }}
                   >
@@ -4266,29 +4127,28 @@ export default function MachineWorldClient() {
               style={{
                 marginTop: 10,
                 paddingTop: 10,
-                borderTop: `1px solid ${N.panelBorder}`,
+                borderTop: `1px solid #D8D4C7`,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 8,
               }}
             >
               <div
                 aria-hidden="true"
                 style={{
-                  width: 6,
-                  height: 6,
+                  width: 8,
+                  height: 8,
                   borderRadius: '50%',
-                  background: isRunning ? N.amber : N.cyan,
-                  boxShadow: `0 0 6px ${isRunning ? N.amber : N.cyan}`,
-                  animation: isRunning ? 'none' : 'pulse-dot 2s ease infinite',
+                  background: isRunning ? N.amber : '#059669',
                 }}
               />
               <span
                 aria-live="polite"
                 style={{
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: 10,
-                  color: isRunning ? N.amber : N.cyan,
+                  fontSize: 11,
+                  color: isRunning ? N.amber : '#059669',
+                  fontWeight: 700,
                 }}
               >
                 {isRunning ? 'EXECUTING' : 'READY'}
