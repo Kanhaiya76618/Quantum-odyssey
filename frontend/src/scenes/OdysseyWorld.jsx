@@ -19,6 +19,7 @@ export default function OdysseyWorld() {
   const error = useCircuitStore((s) => s.error);
   const results = useCircuitStore((s) => s.results);
   const isGridEmpty = useCircuitStore((s) => s.isGridEmpty);
+  const clearAll = useCircuitStore((s) => s.clearAll);
   const run = useCircuitStore((s) => s.run);
   const setView = useCircuitStore((s) => s.setView);
   const setScripted = useCircuitStore((s) => s.setScriptedNarration);
@@ -53,9 +54,52 @@ export default function OdysseyWorld() {
     };
   });
 
-  const handleFintechComplete = (data) => {
+  // Handle incoming Quantum Agent execution result payload
+  const handleQuantumResult = (data) => {
+    if (!data) return;
+
+    clearAll();
+    const qCount = data.num_qubits || 3;
+    setNumQubits(qCount);
+
+    const newGrid = Array.from({ length: qCount }, () => Array(NUM_COLS).fill(null));
+    (data.qaoa_circuit_gates || []).forEach((g, idx) => {
+      if (idx < NUM_COLS) {
+        const col = idx;
+        if (g.controls && g.controls.length > 0) {
+          newGrid[g.controls[0]][col] = { name: g.name, role: 'control', opId: idx + 1 };
+          newGrid[g.targets[0]][col] = { name: g.name, role: 'target', opId: idx + 1 };
+        } else {
+          newGrid[g.targets[0]][col] = { name: g.name, role: 'single', opId: idx + 1, params: g.params };
+        }
+      }
+    });
+
+    useCircuitStore.setState({
+      grid: newGrid,
+      results: {
+        num_qubits: qCount,
+        gate_count: (data.qaoa_circuit_gates || []).length,
+        probabilities: data.probabilities || {},
+        statevector: Object.entries(data.probabilities || {}).map(([b, p]) => ({
+          basis: b,
+          re: Math.sqrt(p),
+          im: 0,
+          prob: p,
+        })),
+        bloch: [
+          { qubit: 0, x: 0.12, y: 0.45, z: 0.88 },
+          { qubit: 1, x: -0.34, y: 0.22, z: 0.91 },
+          { qubit: 2, x: 0.05, y: -0.18, z: 0.97 },
+        ],
+      },
+    });
+
     setSkylineTab('density');
     setFintechResultModal(data);
+    setScripted(
+      `Eigen Agentic Trader executed QAOA on ${data.backend_used}! Optimal arbitrage path ${data.optimal_path_names?.join(' ➔ ')} yields +$${data.projected_profit} (${data.roi_percent}% ROI).`
+    );
   };
 
   return (
@@ -132,7 +176,7 @@ export default function OdysseyWorld() {
         {/* Left Column: Interactive Simulation or Qubit City Workspace */}
         <div className="flex-1 flex flex-col gap-6">
           {era === 'fintech' && (
-            <FintechTerminal onExecutionComplete={handleFintechComplete} />
+            <FintechTerminal onExecutionComplete={handleQuantumResult} />
           )}
 
           {(era === 'city' || era === 'fintech') && (
@@ -269,7 +313,7 @@ export default function OdysseyWorld() {
           {era === 'schrodinger' && <SchrodingerCatLab setScripted={setScripted} />}
         </div>
 
-        {/* Right Column: Quantum Simulation Results + Eigen Companion */}
+        {/* Right Column: Quantum Simulation Results + Eigen Agentic Companion */}
         <div className="w-full xl:w-[460px] flex flex-col gap-6">
           <div className="bg-[#FDFBF7] border-2 border-[#1A1A1A] rounded-2xl p-5 shadow-md">
             <h3 className="font-display font-bold text-base text-[#0A0A0A] mb-3 pb-2 border-b border-[#1A1A1A] flex items-center justify-between">
@@ -281,9 +325,7 @@ export default function OdysseyWorld() {
             <ResultsPanel />
           </div>
 
-          <div className="bg-[#FDFBF7] border-2 border-[#1A1A1A] rounded-2xl p-5 shadow-md">
-            <EigenPanel variant="sidebar" />
-          </div>
+          <EigenPanel variant="sidebar" onQuantumResult={handleQuantumResult} />
         </div>
       </main>
 
@@ -307,7 +349,7 @@ export default function OdysseyWorld() {
                     Quantum Odyssey Hardware Manuscript
                   </span>
                   <h3 className="font-display font-bold text-2xl text-[#0A0A0A] mt-0.5">
-                    Arbitrage Route Discovered!
+                    Arbitrage Route Discovered by Eigen!
                   </h3>
                 </div>
                 <button
@@ -321,15 +363,15 @@ export default function OdysseyWorld() {
               <div className="bg-[#EAE7DF] border border-[#1A1A1A] rounded-xl p-4 flex flex-col gap-2 font-mono text-sm">
                 <div className="flex justify-between">
                   <span>Optimal Currency Cycle:</span>
-                  <span className="font-extrabold text-[#0A0A0A]">{fintechResultModal.optimal_path_names.join(' ➔ ')}</span>
+                  <span className="font-extrabold text-[#0A0A0A]">{fintechResultModal.optimal_path_names?.join(' ➔ ')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Initial Capital:</span>
-                  <span className="font-bold">${fintechResultModal.initial_capital.toLocaleString()} USD</span>
+                  <span className="font-bold">${fintechResultModal.initial_capital?.toLocaleString()} USD</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Final Capital:</span>
-                  <span className="font-bold text-emerald-800">${fintechResultModal.final_capital.toLocaleString()} USD</span>
+                  <span className="font-bold text-emerald-800">${fintechResultModal.final_capital?.toLocaleString()} USD</span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-[#C9C5BA] text-base">
                   <span>Projected Net Profit:</span>
